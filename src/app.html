@@ -1,0 +1,923 @@
+<title>DSN Talent Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#F5F7F5;--surface:#FEFEFE;--surface2:#FAFBFA;--ink:#1C2227;--muted:#5A6570;--line:#DFE4E0;--line2:#EDF0EE;
+  --green:#0F9B4A;--green-text:#0A7338;--green-ink:#FFFFFF;--green-soft:#E3F3EA;--green-line:#AEDDC2;
+  --red:#DE0728;--red-soft:#FDEBEE;--blue:#212E81;--blue-soft:#EBEDF7;--amber:#9A6200;--amber-soft:#FBF1DC;
+  --shadow:0 1px 2px rgba(20,40,25,.06),0 4px 16px rgba(20,40,25,.05);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --bg:#0E1311;--surface:#151B18;--surface2:#111714;--ink:#E7ECE9;--muted:#9AA6A0;--line:#28312D;--line2:#1E2622;
+  --green:#2FB866;--green-text:#4CCB7E;--green-ink:#06140C;--green-soft:#12291C;--green-line:#1F5334;
+  --red:#FF5A6E;--red-soft:#321517;--blue:#9DA7F0;--blue-soft:#1C2140;--amber:#E6AE45;--amber-soft:#2E2410;
+  --shadow:0 1px 2px rgba(0,0,0,.4);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --bg:#0E1311;--surface:#151B18;--surface2:#111714;--ink:#E7ECE9;--muted:#9AA6A0;--line:#28312D;--line2:#1E2622;
+  --green:#2FB866;--green-text:#4CCB7E;--green-ink:#06140C;--green-soft:#12291C;--green-line:#1F5334;
+  --red:#FF5A6E;--red-soft:#321517;--blue:#9DA7F0;--blue-soft:#1C2140;--amber:#E6AE45;--amber-soft:#2E2410;
+  --shadow:0 1px 2px rgba(0,0,0,.4);}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.15;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(28px,4vw,44px)}h2{font-size:22px}h3{font-size:17px}
+p{margin:0}
+a{color:var(--blue)}
+button,input,select,textarea{font:inherit;color:inherit}
+.mono{font-family:var(--mono);font-size:.92em;letter-spacing:.01em}
+.muted{color:var(--muted)}.small{font-size:13px}.tiny{font-size:12px}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px}
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:18px;min-height:64px;flex-wrap:wrap;padding-block:8px}
+.brand{display:flex;align-items:center;gap:10px;cursor:pointer;background:none;border:0;padding:0}
+.brand img{height:38px;width:auto;background:#fff;border-radius:6px;padding:2px 4px}
+.brand span{font-family:var(--display);font-weight:700;font-size:17px;white-space:nowrap}
+.nav{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.nav button{background:none;border:0;padding:8px 12px;border-radius:8px;color:var(--muted);font-weight:600;cursor:pointer;font-size:14px}
+.nav button:hover{color:var(--ink);background:var(--line2)}
+.nav button.on{color:var(--green-text);background:var(--green-soft)}
+.who{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip-user{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border:1px solid var(--line);border-radius:999px;font-size:13px}
+.av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue);font-weight:700;font-size:12px;flex:none}
+.av.lg{width:64px;height:64px;font-size:22px;font-family:var(--display)}
+.av.masked{background:var(--line2);color:var(--muted)}
+.modebar{background:var(--blue);color:#fff;font-size:12.5px}
+.modebar .wrap{display:flex;gap:10px;align-items:center;min-height:30px;flex-wrap:wrap}
+main{padding-block:28px 60px;min-height:70vh}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface);padding:9px 16px;border-radius:9px;font-weight:600;cursor:pointer;font-size:14px;text-decoration:none;color:var(--ink);white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--green);border-color:var(--green);color:var(--green-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.blue{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.danger{color:var(--red);border-color:var(--red)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:7px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+/* layout */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.split{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
+.split.wide{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+@media (max-width:980px){.split,.split.wide{grid-template-columns:1fr}.grid3,.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.wrap{padding-inline:16px}.nav{order:3;flex-basis:100%}}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.section-h{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+hr{border:0;border-top:1px solid var(--line);margin:4px 0}
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:12.5px;font-weight:600;border:1px solid transparent;white-space:nowrap}
+.badge.verified{background:var(--green-soft);color:var(--green-text);border-color:var(--green-line)}
+.badge.claimed{background:transparent;color:var(--muted);border:1px dashed var(--muted)}
+.badge.pending{background:var(--amber-soft);color:var(--amber)}
+.badge.rejected{background:var(--red-soft);color:var(--red)}
+.badge.blue{background:var(--blue-soft);color:var(--blue)}
+.badge.grey{background:var(--line2);color:var(--muted)}
+.tick{width:14px;height:14px;flex:none}
+.role-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.role-line:last-child{border-bottom:0}
+.role-name{font-weight:600}
+/* score */
+.score-big{display:flex;align-items:baseline;gap:6px}
+.score-big b{font-family:var(--display);font-size:52px;line-height:1;font-variant-numeric:tabular-nums}
+.score-big span{color:var(--muted);font-weight:600}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar-row{display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:4px 10px;align-items:center}
+.bar-row .lbl{font-size:13.5px;font-weight:600}
+.bar-row .val{text-align:right;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+.bar{grid-column:1/-1;height:8px;background:var(--line2);border-radius:99px;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;background:var(--green);border-radius:99px}
+.bar.default i{background:var(--muted);opacity:.5}
+.mini{display:flex;gap:3px;height:6px;margin-top:6px}
+.mini i{flex:1;background:var(--line2);border-radius:3px;overflow:hidden;position:relative}
+.mini i b{position:absolute;inset:0 auto 0 0;background:var(--green);border-radius:3px}
+.ring{--p:0;width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--green) calc(var(--p)*1%),var(--line2) 0);display:grid;place-items:center;flex:none}
+.ring.default{background:conic-gradient(var(--muted) calc(var(--p)*1%),var(--line2) 0)}
+.ring span{width:50px;height:50px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
+/* talent cards */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;text-align:left;transition:border-color .15s,transform .15s}
+.tcard:hover{border-color:var(--green-line);transform:translateY(-1px)}
+.tcard .idl{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.tcard .nm{font-weight:700;font-size:15.5px}
+.tcard .hd{font-size:13px;color:var(--muted);min-height:2.6em}
+/* forms */
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:600}
+label.f .hint{font-weight:400;color:var(--muted);font-size:12.5px}
+input[type=text],input[type=email],input[type=password],input[type=number],input[type=date],input[type=datetime-local],input[type=url],input[type=search],select,textarea{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 11px;width:100%;font-size:14.5px;font-weight:400}
+textarea{min-height:84px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--green-line);border-color:var(--green)}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:14px;font-weight:500;cursor:pointer}
+.check input{margin-top:3px;accent-color:var(--green)}
+.checks{display:flex;flex-wrap:wrap;gap:8px 18px}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.fgrid .full{grid-column:1/-1}
+@media (max-width:640px){.fgrid{grid-template-columns:1fr}}
+.entry{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface2);display:flex;flex-direction:column;gap:12px}
+/* tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:11px 14px;border-bottom:1px solid var(--line);background:var(--surface2);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* tiles */
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.tile .k{font-size:12.5px;color:var(--muted);font-weight:600}
+.tile .v{font-family:var(--display);font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.tile.alert{border-color:var(--amber);background:var(--amber-soft)}
+/* misc */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--line2);border-radius:6px;padding:3px 9px;font-size:13px}
+.lock{display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px dashed var(--muted);border-radius:12px;background:var(--surface2)}
+.note{padding:12px 14px;border-radius:10px;background:var(--blue-soft);color:var(--ink);font-size:14px}
+.note.warn{background:var(--amber-soft)}
+.note.ok{background:var(--green-soft)}
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px}
+.steps li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--green);color:var(--green-ink);display:grid;place-items:center;font-weight:700;font-size:13px}
+.copyrow{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 6px 6px 12px;background:var(--surface)}
+.copyrow code{flex:1;font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl{display:grid;grid-template-columns:14px 1fr;gap:10px;padding-bottom:12px;position:relative}
+.tl::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--green);margin-top:6px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 14px;font-weight:600;color:var(--muted);cursor:pointer}
+.tabs button.on{color:var(--green-text);border-bottom-color:var(--green)}
+.empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:40px;align-items:center;padding-block:20px 36px}
+@media (max-width:900px){.hero{grid-template-columns:1fr}}
+.hero h1 em{font-style:normal;color:var(--green-text)}
+.hero .lede{font-size:18px;color:var(--muted);max-width:56ch;margin-top:14px}
+.flag{display:inline-flex;height:4px;width:54px;border-radius:2px;overflow:hidden;margin-bottom:14px}
+.flag i{flex:1;background:var(--green)}.flag i:nth-child(2){background:var(--line)}
+.who3 .card h3{margin-bottom:6px}
+.who3 ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:4px}
+/* CV document */
+.cv{background:#fff;color:#1b1f23;max-width:820px;margin:0 auto;border:1px solid var(--line);border-radius:4px;padding:48px 56px;box-shadow:var(--shadow);font-size:14px}
+.cv h1{font-size:30px;color:#1b1f23}
+.cv .cv-sub{color:#4a545d;margin-top:4px}
+.cv .cv-bar{height:3px;background:linear-gradient(90deg,#0F9B4A 0 70%,#DE0728 70% 85%,#212E81 85%);margin:18px 0 22px}
+.cv h4{font-family:var(--display);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#0A7338;margin:22px 0 8px;border-bottom:1px solid #e3e7e4;padding-bottom:5px}
+.cv .it{margin-bottom:12px}.cv .it-h{display:flex;justify-content:space-between;gap:10px;font-weight:700;flex-wrap:wrap}
+.cv .it-m{color:#4a545d;font-size:13px}
+.cv .vtag{display:inline-block;font-size:11px;font-weight:700;color:#0A7338;border:1px solid #8fd1ab;border-radius:4px;padding:0 5px;margin-left:6px;vertical-align:2px}
+.cv .ctag{display:inline-block;font-size:11px;font-weight:600;color:#6b747c;border:1px dashed #9aa3aa;border-radius:4px;padding:0 5px;margin-left:6px;vertical-align:2px}
+.cv .foot{margin-top:28px;padding-top:10px;border-top:1px solid #e3e7e4;font-size:11.5px;color:#6b747c}
+@media (max-width:640px){.cv{padding:24px 18px}}
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(10,20,14,.45);z-index:50;display:grid;place-items:center;padding:16px}
+.modal{background:var(--surface);border-radius:14px;max-width:640px;width:100%;max-height:88vh;overflow:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal.wide{max-width:860px}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 18px;border-radius:10px;z-index:60;font-weight:600;font-size:14px;max-width:calc(100% - 32px)}
+.rubric{font-size:13px;display:grid;grid-template-columns:52px 1fr;gap:4px 10px;margin-top:8px;color:var(--muted)}
+.rubric b{font-family:var(--mono);color:var(--ink);font-weight:600}
+.scorein{display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:10px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line2)}
+.foot{border-top:1px solid var(--line);padding-block:22px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="app"></div>
+<div id="modal-root"></div>
+<script type="application/json" id="seed">__SEED__</script>
+<script>
+"use strict";
+const LOGO="__LOGO__";
+const CATS=[
+ {k:"tech",label:"Technical Expertise",short:"Technical",bands:[["0–5","Not yet assessed, or only basic awareness of the tools used in the role."],["6–10","Uses core tools with guidance; handles simple, well-defined tasks."],["11–15","Works independently; answers practical questions correctly and solves typical problems in the role."],["16–20","Deep expertise; handles complex, ambiguous problems and explains trade-offs clearly in interview."]]},
+ {k:"projects",label:"Projects & Quality of Work",short:"Projects",bands:[["0–5","No projects yet, or only tutorial and course exercises."],["6–10","2–4 relevant projects with basic documentation or links."],["11–15","5+ relevant projects on real data with a clear personal contribution and working links or code."],["16–20","Complex, deployed or real-world projects with measurable impact and verified ownership."]]},
+ {k:"experience",label:"Work Experience",short:"Experience",bands:[["0–5","No relevant work yet, or internship and volunteer work only."],["6–10","Up to 2 years in an entry-level or junior role."],["11–15","3–5 years delivering work independently in relevant roles."],["16–20","6+ years with senior or lead responsibility and clear outcomes."]]},
+ {k:"education",label:"Education & Certifications",short:"Education",bands:[["0–5","No relevant qualification or certificate yet."],["6–10","A degree or diploma, or 1–2 recognised certificates (DSN programmes count)."],["11–15","A relevant degree plus several recognised certifications or DSN programme completions."],["16–20","Postgraduate study in a relevant field plus advanced professional certifications or awards."]]},
+ {k:"soft",label:"Professional & Soft Skills",short:"Soft skills",bands:[["0–5","Not yet assessed."],["6–10","Communicates adequately; needs support to structure work."],["11–15","Clear communicator, reliable, collaborates well and owns tasks."],["16–20","Client-ready: structured thinking, leads others and presents confidently to stakeholders."]]}
+];
+const LEVELS=["Junior","Mid-Level","Senior","Lead / Expert"];
+const EMP=["Employed full-time","Employed part-time","Self-employed / Freelance","Internship","NYSC","Student","Unemployed – seeking work","Not seeking work"];
+const EMPLOYED=new Set(["Employed full-time","Employed part-time","Self-employed / Freelance","Internship"]);
+const COLS=["members","applications","recruiters","reviewers","requests","talentRequests","views","settings"];
+const S={};COLS.forEach(c=>S[c]={});
+let DB=null,USER=null,DL=null,MODE="loading",CAN_ADMIN=false,READY=false;
+let R={name:"home",p:{}};
+let SESSION=null;
+let DRAFT=null;
+let UI={dirFilter:{q:"",role:"",level:"",verified:false,min:0,sort:"best"},tab:{},pendingRender:false};
+const viewedOnce=new Set();
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clone=o=>JSON.parse(JSON.stringify(o??null));
+const now=()=>new Date().toISOString();
+const fmtD=iso=>{if(!iso)return"—";const d=new Date(iso);return isNaN(d)?esc(iso):d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})};
+const fmtDT=iso=>{if(!iso)return"—";const d=new Date(iso);return isNaN(d)?esc(iso):d.toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})};
+const fmtYM=ym=>{if(!ym)return"";const[y,m]=ym.split("-");if(!m)return y;return new Date(+y,+m-1,1).toLocaleDateString("en-GB",{month:"short",year:"numeric"})};
+const cleanId=s=>String(s||"").trim().toUpperCase().replace(/\s+/g,"-").replace(/[^A-Z0-9_\-.:@+~]/g,"");
+const rid=p=>p+"-"+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase();
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
+function mask(name){return String(name||"").split(/\s+/).filter(Boolean).map(w=>w[0].toUpperCase()+"*".repeat(Math.max(3,w.length-1))).join(" ")}
+function initials(name){return String(name||"?").split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join("")}
+function total(m){const s=m?.scores||{};return CATS.reduce((a,c)=>a+(+s[c.k]||0),0)}
+function verifiedRoles(m){return(m.roles||[]).filter(r=>r.status==="verified")}
+function levelRank(l){return LEVELS.indexOf(l)}
+function topRole(m){const v=verifiedRoles(m).sort((a,b)=>levelRank(b.level)-levelRank(a.level));if(v.length)return v[0];return(m.roles||[])[0]||null}
+function completeness(m){let p=0;if(m.headline)p+=10;if((m.summary||"").length>40)p+=15;if((m.skills||[]).length>=3)p+=10;if((m.experience||[]).length)p+=20;if((m.projects||[]).length)p+=20;if((m.education||[]).length)p+=15;if((m.certifications||[]).length)p+=10;return p}
+const settings=()=>S.settings.main||{};
+const rolesList=()=>settings().roles||[];
+function toast(msg){const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2800)}
+async function sha(s){try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}catch(e){let h=0;for(const ch of s){h=(h*31+ch.charCodeAt(0))|0}return"x"+h}}
+async function hashPw(pw){const salt=Math.random().toString(36).slice(2,10);return{salt,pwHash:await sha(salt+":"+pw)}}
+async function checkPw(acc,pw){return acc&&acc.pwHash&&(await sha(acc.salt+":"+pw))===acc.pwHash}
+const ICON={
+ check:'<svg class="tick" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M4.5 8.2l2.3 2.2 4.7-4.8" stroke="var(--surface)" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ lock:'<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+ dot:'<svg width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>'
+};
+
+/* ---------- storage ---------- */
+function saveLocal(){if(MODE==="local")lsSet("dsn_tp_data_v1",JSON.stringify(S))}
+function seedObj(){return JSON.parse(document.getElementById("seed").textContent)}
+async function put(col,id,data){S[col]={...S[col],[id]:data};if(MODE==="db"){try{await DB.doc(col+"/"+id).set(data)}catch(e){toast("Couldn't save: "+(e.code||e.message));throw e}}else saveLocal();scheduleRender()}
+async function remove(col,id){const o={...S[col]};delete o[id];S[col]=o;if(MODE==="db"){try{await DB.doc(col+"/"+id).delete()}catch(e){toast("Couldn't delete: "+(e.code||e.message))}}else saveLocal();scheduleRender()}
+async function loadSample(){const s=seedObj();for(const c of COLS){for(const[id,d]of Object.entries(s[c]||{})){if(!S[c][id])await put(c,id,d)}}toast("Sample data loaded")}
+async function initStore(){
+  try{DB=(window.claude&&window.claude.use)?await window.claude.use("db"):null}catch(e){DB=null}
+  try{USER=(window.claude&&window.claude.use)?await window.claude.use("user"):null}catch(e){USER=null}
+  try{DL=(window.claude&&window.claude.use)?await window.claude.use("downloads"):null}catch(e){DL=null}
+  if(DB){
+    MODE="db";
+    await new Promise(res=>{let pending=COLS.length;const done=()=>{if(--pending===0)res()};
+      COLS.forEach(c=>{let first=true;DB.collection(c).onSnapshot(snap=>{const o={};snap.docs.forEach(d=>{o[d.id]=d.data()});S[c]=o;if(first){first=false;done()}else scheduleRender()},err=>{console.warn(c,err);if(first){first=false;done()}})});
+      setTimeout(res,9000)});
+  }else{
+    MODE="local";
+    const raw=lsGet("dsn_tp_data_v1");let ok=false;
+    if(raw){try{const o=JSON.parse(raw);COLS.forEach(c=>S[c]=o[c]||{});ok=true}catch(e){}}
+    if(!ok){const s=seedObj();COLS.forEach(c=>S[c]=clone(s[c]||{}));saveLocal()}
+  }
+  if(USER){try{CAN_ADMIN=!!(await USER.isOwner())||!!(await USER.canEdit())}catch(e){CAN_ADMIN=false}}else CAN_ADMIN=(MODE==="local");
+  try{SESSION=JSON.parse(lsGet("dsn_tp_session")||"null")}catch(e){SESSION=null}
+  if(SESSION&&!acctOf(SESSION))SESSION=null;
+  READY=true;
+}
+function acctOf(s){if(!s)return null;if(s.kind==="member")return S.members[s.id];if(s.kind==="recruiter")return S.recruiters[s.id];if(s.kind==="reviewer")return S.reviewers[s.id];if(s.kind==="admin")return CAN_ADMIN?{id:"admin"}:null;return null}
+function setSession(s){SESSION=s;if(s)lsSet("dsn_tp_session",JSON.stringify(s));else lsDel("dsn_tp_session")}
+const me=()=>acctOf(SESSION);
+const isRecruiter=()=>SESSION?.kind==="recruiter";
+const isSubscribed=()=>isRecruiter()&&me()?.status==="approved"&&me()?.subscribed;
+const isAdmin=()=>SESSION?.kind==="admin"&&CAN_ADMIN;
+const isReviewer=()=>SESSION?.kind==="reviewer";
+function canSeeFull(memberId){if(isAdmin()||isReviewer())return true;if(SESSION?.kind==="member"&&SESSION.id===memberId)return true;return isSubscribed()}
+
+/* ---------- routing / render ---------- */
+function go(name,p={}){R={name,p};if(document.activeElement)document.activeElement.blur();render();window.scrollTo(0,0);const token=name.replace(/[^a-z0-9-]/gi,"");try{history.replaceState(null,"","#"+token)}catch(e){}}
+let rq=false;
+function scheduleRender(){if(rq)return;rq=true;requestAnimationFrame(()=>{rq=false;const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&$("#app").contains(a)){UI.pendingRender=true;return}render()})}
+document.addEventListener("focusout",()=>{if(UI.pendingRender){setTimeout(()=>{const a=document.activeElement;if(!(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))){UI.pendingRender=false;render()}},150)}});
+
+function navItems(){
+  const k=SESSION?.kind;
+  if(k==="member")return[["m-home","Dashboard"],["m-edit","Edit my CV"],["cv","My CV",{id:SESSION.id}],["directory","Talent directory"]];
+  if(k==="reviewer")return[["r-queue","Review queue"],["r-done","Completed"],["r-rubric","Rubrics"]];
+  if(k==="recruiter")return[["directory","Find talent"],["rc-requests","Talent requests"],["rc-plan","Subscription"]];
+  if(k==="admin")return[["a-home","Overview"],["a-apps","Applications"],["a-members","Members"],["a-verify","Verifications"],["a-reviewers","Reviewers"],["a-recruiters","Recruiters"],["a-talent","Partner requests"],["a-impact","Impact"],["a-settings","Settings"]];
+  return[["home","Home"],["directory","Talent directory"],["apply","Apply as a member"],["rc-register","For recruiters"]];
+}
+function header(){
+  const u=me();const k=SESSION?.kind;
+  const label=k==="member"?u.name:k==="recruiter"?u.company:k==="reviewer"?"Reviewer "+u.id:k==="admin"?"DSN Admin":"";
+  const nav=navItems().map(([n,l,p])=>`<button class="${R.name===n||(n==="cv"&&R.name==="cv"&&R.p.id===SESSION?.id)?"on":""}" data-go="${n}" ${p?`data-p='${esc(JSON.stringify(p))}'`:""}>${esc(l)}</button>`).join("");
+  const right=SESSION?`<span class="chip-user"><span class="av">${esc(k==="admin"?"A":initials(label))}</span>${esc(label)}</span><button class="btn sm" data-act="logout">Log out</button>`
+    :`<button class="btn sm" data-go="login">Log in</button><button class="btn sm primary" data-go="apply">Apply</button>`;
+  const adminLink=CAN_ADMIN&&k!=="admin"?`<button class="btn sm ghost" data-act="enter-admin">Admin</button>`:"";
+  const modeLine=k&&k!=="admin"?`<div class="modebar"><div class="wrap"><b>${k==="member"?"Member":k==="recruiter"?"Recruiter":"Peer reviewer"}</b><span>·</span><span class="mono">${esc(SESSION.id)}</span>${k==="recruiter"?`<span>·</span><span>${isSubscribed()?"Subscribed: full talent details unlocked":"Free plan: names and full CVs are hidden"}</span>`:""}</div></div>`:
+    k==="admin"?`<div class="modebar" style="background:var(--red)"><div class="wrap"><b>Admin mode</b><span>·</span><span>You can see real identities and every record.</span></div></div>`:"";
+  return`<header class="top"><div class="wrap"><button class="brand" data-go="${k==="member"?"m-home":k==="reviewer"?"r-queue":k==="recruiter"?"directory":k==="admin"?"a-home":"home"}" aria-label="DSN Talent Platform home"><img src="${LOGO}" alt="Data Science Nigeria"><span>Talent Platform</span></button><nav class="nav">${nav}</nav><div class="who">${adminLink}${right}</div></div></header>${modeLine}`;
+}
+function footer(){return`<footer class="foot"><div class="wrap row between"><span>© Data Science Nigeria · DSN Talent Platform</span><span>${MODE==="db"?"Live shared data":"Demo mode: data is saved in this browser only"}</span></div></footer>`}
+
+const VIEWS={};
+function render(){
+  const app=$("#app");
+  if(!READY){app.innerHTML=`<div class="wrap" style="padding-block:80px"><p class="muted">Loading DSN Talent Platform…</p></div>`;return}
+  const guard={member:/^m-/,reviewer:/^r-/,recruiter:/^rc-(requests|plan)$/,admin:/^a-/};
+  for(const[k,re]of Object.entries(guard)){if(re.test(R.name)&&!(SESSION?.kind===k&&acctOf(SESSION))){R={name:"login",p:{kind:k==="admin"?"member":k}};if(k==="admin"){R={name:"home",p:{}}}}}
+  let body="";
+  try{body=(VIEWS[R.name]||VIEWS.home)(R.p)}catch(e){console.error(e);body=`<div class="card"><h2>Something went wrong</h2><p class="muted">${esc(e.message)}</p></div>`}
+  app.innerHTML=header()+`<main><div class="wrap">${body}</div></main>`+footer();
+  afterRender();
+}
+let afterHooks=[];
+function after(fn){afterHooks.push(fn)}
+function afterRender(){const h=afterHooks;afterHooks=[];h.forEach(f=>{try{f()}catch(e){console.error(e)}})}
+
+/* ---------- shared components ---------- */
+function roleBadge(r,{short=false}={}){
+  if(!r)return`<span class="badge grey">No role yet</span>`;
+  if(r.status==="verified")return`<span class="badge verified">${ICON.check}${esc(r.role)} · ${esc(r.level)}</span>`;
+  if(r.status==="pending")return`<span class="badge pending">${esc(r.role)}${short?"":" · verification in progress"}</span>`;
+  return`<span class="badge claimed">${esc(r.role)} · Claimed, not verified</span>`;
+}
+function statusBadge(st){const m={submitted:["pending","Awaiting reviewer"],interview:["blue","Interview requested"],completed:["verified","Completed"],rejected:["rejected","Not verified"],pending:["pending","Pending"],approved:["verified","Approved"],new:["pending","New"],shortlisting:["blue","Shortlisting"],shared:["blue","Profiles shared"],interviewing:["blue","Interviewing"],placed:["verified","Placed"],closed:["grey","Closed"]};const[c,l]=m[st]||["grey",st];return`<span class="badge ${c}">${esc(l)}</span>`}
+function scoreStatusText(m){if(m.scoreStatus==="reviewed")return`Reviewed by DSN on ${fmtD(m.reviewedAt)}.`;if(m.scoreStatus==="pending")return"Review in progress. Showing starting scores.";return"Starting scores (5 per category) until the profile is reviewed."}
+function scorePanel(m,{compact=false}={}){
+  const t=total(m);const def=m.scoreStatus!=="reviewed";
+  return`<div class="stack" style="gap:14px"><div class="row between"><div><div class="eyebrow">DSN Rating</div><div class="score-big"><b>${t}</b><span>/ 100</span></div></div>${def?`<span class="badge ${m.scoreStatus==="pending"?"pending":"grey"}">${m.scoreStatus==="pending"?"Review in progress":"Not yet reviewed"}</span>`:`<span class="badge verified">${ICON.check}Reviewed</span>`}</div>
+  <div class="bars">${CATS.map(c=>{const v=+(m.scores||{})[c.k]||0;return`<div class="bar-row"><span class="lbl">${esc(c.label)}</span><span class="val">${v}/20</span><div class="bar ${def?"default":""}" role="img" aria-label="${esc(c.label)} ${v} out of 20"><i style="width:${v*5}%"></i></div></div>`}).join("")}</div>
+  ${compact?"":`<p class="small muted">${scoreStatusText(m)} Each category is scored out of 20 against a published rubric.</p>`}</div>`;
+}
+function ring(m){const t=total(m);return`<div class="ring ${m.scoreStatus!=="reviewed"?"default":""}" style="--p:${t}" aria-label="Rating ${t} out of 100"><span>${t}</span></div>`}
+function miniBars(m){return`<div class="mini" aria-hidden="true">${CATS.map(c=>`<i title="${esc(c.short)} ${(m.scores||{})[c.k]||0}/20"><b style="width:${((m.scores||{})[c.k]||0)*5}%"></b></i>`).join("")}</div>`}
+function displayName(m){return canSeeFull(m.dsnId)?m.name:mask(m.name)}
+function talentCard(m){
+  const tr=topRole(m);const full=canSeeFull(m.dsnId);
+  return`<button class="tcard" data-go="talent" data-p='${esc(JSON.stringify({id:m.dsnId}))}'>
+   <div class="idl"><div class="row" style="gap:10px;flex-wrap:nowrap"><span class="av ${full?"":"masked"}">${full?esc(initials(m.name)):"•"}</span><div><div class="nm">${esc(displayName(m))}</div><div class="mono small muted">${esc(m.dsnId)}</div></div></div>${ring(m)}</div>
+   <div class="hd">${esc(m.headline||"")}</div>
+   <div>${roleBadge(tr,{short:true})}${verifiedRoles(m).length>1?` <span class="small muted">+${verifiedRoles(m).length-1} verified</span>`:""}</div>
+   ${miniBars(m)}
+  </button>`;
+}
+function modal(html,{wide=false}={}){const root=$("#modal-root");root.innerHTML=`<div class="scrim" data-act="close-modal-bg"><div class="modal ${wide?"wide":""}" role="dialog" aria-modal="true">${html}</div></div>`;const f=root.querySelector("input,select,textarea,button:not([data-act=close-modal])");if(f)setTimeout(()=>f.focus(),30)}
+function closeModal(){$("#modal-root").innerHTML=""}
+function field(id,label,{type="text",value="",hint="",req=false,opts=null,ph="",full=false,rows=0,attrs=""}={}){
+  let ctl;
+  if(opts)ctl=`<select id="${id}" name="${id}" ${req?"required":""} ${attrs}><option value="">Select…</option>${opts.map(o=>`<option ${o===value?"selected":""}>${esc(o)}</option>`).join("")}</select>`;
+  else if(rows)ctl=`<textarea id="${id}" name="${id}" rows="${rows}" placeholder="${esc(ph)}" ${req?"required":""} ${attrs}>${esc(value)}</textarea>`;
+  else ctl=`<input id="${id}" name="${id}" type="${type}" value="${esc(value)}" placeholder="${esc(ph)}" ${req?"required":""} ${attrs}>`;
+  return`<label class="f ${full?"full":""}" for="${id}">${esc(label)}${req?' <span style="color:var(--red)">*</span>':""}${hint?`<span class="hint">${esc(hint)}</span>`:""}${ctl}</label>`;
+}
+function copyRow(text){return`<div class="copyrow"><code>${esc(text)}</code><button class="btn sm" data-act="copy" data-text="${esc(text)}">Copy</button></div>`}
+
+/* ---------- PUBLIC: home ---------- */
+VIEWS.home=()=>{
+  const ms=Object.values(S.members).filter(m=>m.visible!==false);
+  const vr=ms.reduce((a,m)=>a+verifiedRoles(m).length,0);
+  const partners=Object.values(S.recruiters).filter(r=>r.status==="approved").length;
+  const featured=ms.slice().sort((a,b)=>(verifiedRoles(b).length>0)-(verifiedRoles(a).length>0)||total(b)-total(a)).slice(0,3);
+  return`<section class="hero"><div><div class="flag"><i></i><i></i><i></i></div><h1>Verified data and AI talent from the <em>DSN community</em>.</h1>
+  <p class="lede">Every member has one DSN ID, one standard CV and a DSN Rating out of 100. Roles are marked Verified only after a DSN peer reviewer checks the evidence. Partners request talent through DSN, never by contacting members directly.</p>
+  <div class="row" style="margin-top:22px"><button class="btn primary" data-go="directory">Browse talent</button><button class="btn" data-go="apply">Apply as a DSN member</button><button class="btn ghost" data-go="rc-register">Recruiter access →</button></div></div>
+  <div class="card stack"><div class="eyebrow">How the DSN Rating works</div><p class="small muted">Five categories, 20 points each. New profiles start at 5 per category (25/100) until a reviewer grades them.</p>
+   <div class="bars">${CATS.map((c,i)=>{const v=[16,14,12,15,13][i];return`<div class="bar-row"><span class="lbl">${esc(c.label)}</span><span class="val">${v}/20</span><div class="bar"><i style="width:${v*5}%"></i></div></div>`}).join("")}</div>
+   <div class="row between"><span class="small muted">Example profile</span><span class="score-big"><b style="font-size:32px">70</b><span>/ 100</span></span></div></div></section>
+  <section class="grid3" style="margin-bottom:28px">
+   <div class="tile"><div class="k">Members on the platform</div><div class="v">${ms.length}</div></div>
+   <div class="tile"><div class="k">Verified roles</div><div class="v">${vr}</div></div>
+   <div class="tile"><div class="k">Hiring partners</div><div class="v">${partners}</div></div></section>
+  <section class="grid3 who3" style="margin-bottom:32px">
+   <div class="card"><div class="eyebrow">Members</div><h3>Get rated and verified</h3><ul><li>Apply with your DSN ID. DSN creates your profile.</li><li>Log in with your DSN ID and set a password.</li><li>Fill in one standard CV, then submit it for review.</li><li>Request verification for each role you claim.</li></ul></div>
+   <div class="card"><div class="eyebrow">Peer reviewers</div><h3>Grade against a rubric</h3><ul><li>Verify roles: approve, reject, or assign a different role or level.</li><li>Rate profiles in five categories out of 20.</li><li>Request an interview when evidence is unclear.</li></ul></div>
+   <div class="card"><div class="eyebrow">Recruiters</div><h3>Find talent through DSN</h3><ul><li>Anyone can see DSN IDs, roles and ratings.</li><li>Subscribers see names and full CVs, and can download them.</li><li>Request talent; DSN shortlists and connects you.</li></ul></div></section>
+  <div class="section-h"><h2>Top-rated talent</h2><button class="btn sm" data-go="directory">See all</button></div>
+  <div class="tgrid">${featured.map(talentCard).join("")}</div>`;
+};
+
+/* ---------- directory ---------- */
+VIEWS.directory=()=>{
+  const f=UI.dirFilter;const full=isSubscribed()||isAdmin();
+  let ms=Object.values(S.members).filter(m=>m.visible!==false);
+  const q=f.q.trim().toLowerCase();
+  if(q)ms=ms.filter(m=>[m.dsnId,m.headline,(m.skills||[]).join(" "),(m.roles||[]).map(r=>r.role).join(" "),full?m.name:""].join(" ").toLowerCase().includes(q));
+  if(f.role)ms=ms.filter(m=>(m.roles||[]).some(r=>r.role===f.role&&(!f.verified||r.status==="verified")&&(!f.level||r.level===f.level)));
+  else{if(f.verified)ms=ms.filter(m=>verifiedRoles(m).length);if(f.level)ms=ms.filter(m=>verifiedRoles(m).some(r=>r.level===f.level))}
+  if(f.min)ms=ms.filter(m=>total(m)>=f.min);
+  const vmatch=m=>f.role?(m.roles||[]).some(r=>r.role===f.role&&r.status==="verified"):verifiedRoles(m).length>0;
+  ms.sort(f.sort==="score"?(a,b)=>total(b)-total(a):f.sort==="new"?(a,b)=>String(b.createdAt).localeCompare(a.createdAt):(a,b)=>(vmatch(b)-vmatch(a))||total(b)-total(a));
+  const lockNote=!full?`<div class="note ${isRecruiter()?"warn":""}">${isRecruiter()?`Your company is on the free plan. You can see DSN IDs, roles and ratings. <b>Subscribe</b> to see names, full CVs and to request specific talent. <button class="btn sm" data-go="rc-plan" style="margin-left:6px">View subscription</button>`:`Names are hidden to protect members. Subscribed recruiters see full profiles. <button class="btn sm" data-go="login" data-p='{"kind":"recruiter"}' style="margin-left:6px">Recruiter log in</button>`}</div>`:"";
+  return`<div class="section-h"><div><div class="eyebrow">Talent directory</div><h1 style="font-size:32px">Find DSN talent</h1></div><span class="muted">${ms.length} profile${ms.length===1?"":"s"}</span></div>
+  <div class="stack">${lockNote}
+  <div class="card" style="padding:14px"><div class="row" style="gap:10px">
+   <input type="search" id="f-q" placeholder="${full?"Name, DSN ID, skill or role":"DSN ID, skill or role"}" value="${esc(f.q)}" style="flex:2;min-width:200px" aria-label="Search">
+   <select id="f-role" style="flex:1;min-width:170px" aria-label="Role"><option value="">All roles</option>${rolesList().map(r=>`<option ${r===f.role?"selected":""}>${esc(r)}</option>`).join("")}</select>
+   <select id="f-level" style="flex:0 1 150px" aria-label="Level"><option value="">Any level</option>${LEVELS.map(l=>`<option ${l===f.level?"selected":""}>${l}</option>`).join("")}</select>
+   <select id="f-min" style="flex:0 1 150px" aria-label="Minimum rating">${[0,40,50,60,70,80].map(v=>`<option value="${v}" ${+f.min===v?"selected":""}>${v?"Rating "+v+"+":"Any rating"}</option>`).join("")}</select>
+   <select id="f-sort" style="flex:0 1 170px" aria-label="Sort"><option value="best" ${f.sort==="best"?"selected":""}>Verified first</option><option value="score" ${f.sort==="score"?"selected":""}>Highest rating</option><option value="new" ${f.sort==="new"?"selected":""}>Newest</option></select>
+   <label class="check"><input type="checkbox" id="f-ver" ${f.verified?"checked":""}> Verified roles only</label></div></div>
+  ${ms.length?`<div class="tgrid">${ms.map(talentCard).join("")}</div>`:`<div class="empty">No profiles match these filters.</div>`}</div>`;
+};
+function bindDir(){const set=()=>{UI.dirFilter={q:$("#f-q").value,role:$("#f-role").value,level:$("#f-level").value,min:+$("#f-min").value,sort:$("#f-sort").value,verified:$("#f-ver").checked};const pos=$("#f-q").selectionStart;const focusQ=document.activeElement===$("#f-q");render();if(focusQ){const i=$("#f-q");i.focus();try{i.setSelectionRange(pos,pos)}catch(e){}}};
+ ["#f-role","#f-level","#f-min","#f-sort","#f-ver"].forEach(s=>$(s)?.addEventListener("change",set));let t;$("#f-q")?.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(set,250)})}
+
+/* ---------- talent profile ---------- */
+VIEWS.talent=({id})=>{
+  const m=S.members[id];if(!m||(m.visible===false&&!canSeeFull(id)))return`<div class="empty">This profile isn't available.</div>`;
+  const full=canSeeFull(id);const self=SESSION?.kind==="member"&&SESSION.id===id;
+  if(isSubscribed()&&!viewedOnce.has(id)){viewedOnce.add(id);after(()=>logView(id))}
+  const vr=(m.roles||[]).filter(r=>r.status==="verified"),cr=(m.roles||[]).filter(r=>r.status!=="verified");
+  let actions="";
+  if(self)actions=`<button class="btn primary" data-go="m-edit">Edit my CV</button><button class="btn" data-go="cv" data-p='${esc(JSON.stringify({id}))}'>View CV</button>`;
+  else if(isSubscribed())actions=`<button class="btn primary" data-act="request-talent" data-id="${esc(id)}">Request this talent</button><button class="btn" data-go="cv" data-p='${esc(JSON.stringify({id}))}'>View full CV</button><button class="btn" data-act="download-cv" data-id="${esc(id)}">Download CV (PDF)</button>`;
+  else if(isAdmin()||isReviewer())actions=`<button class="btn" data-go="cv" data-p='${esc(JSON.stringify({id}))}'>View full CV</button><button class="btn" data-act="download-cv" data-id="${esc(id)}">Download CV (PDF)</button>`;
+  const locked=!full?`<div class="lock"><span class="muted">${ICON.lock}</span><div class="stack" style="gap:8px"><b>Full CV is for subscribed recruiters</b><p class="small muted">Subscribers see the member's name, work history, projects, education and certifications, and can download the CV. Members are never contacted directly. DSN handles every talent request.</p><div class="row">${isRecruiter()?`<button class="btn sm primary" data-go="rc-plan">Subscribe</button>`:`<button class="btn sm" data-go="login" data-p='{"kind":"recruiter"}'>Recruiter log in</button><button class="btn sm ghost" data-go="rc-register">Register your company</button>`}</div></div></div>`:"";
+  const counts=`${(m.experience||[]).length} roles held · ${(m.projects||[]).length} projects · ${(m.education||[]).length} qualifications · ${(m.certifications||[]).length} certifications`;
+  return`<button class="btn sm ghost" data-act="back" style="margin-bottom:12px">← Back</button>
+  <div class="split"><div class="stack">
+   <div class="card"><div class="row" style="gap:16px;align-items:flex-start;flex-wrap:nowrap"><span class="av lg ${full?"":"masked"}">${full?esc(initials(m.name)):"•"}</span><div class="stack" style="gap:6px;flex:1;min-width:0"><h2>${esc(displayName(m))}</h2><div class="row small" style="gap:8px"><span class="mono">${esc(m.dsnId)}</span>${m.location?`<span class="muted">· ${esc(m.location)}</span>`:""}${m.openToWork!==false?`<span class="badge blue">Open to opportunities</span>`:""}</div><p class="muted">${esc(m.headline||"")}</p></div></div>
+    ${actions?`<div class="row" style="margin-top:16px">${actions}</div>`:""}</div>
+   <div class="card"><h3 style="margin-bottom:6px">Roles</h3><p class="small muted" style="margin-bottom:6px">Verified roles were checked by a DSN peer reviewer. Claimed roles are the member's own statement.</p>
+    ${vr.map(r=>`<div class="role-line"><span class="role-name">${esc(r.role)}</span><span class="row" style="gap:8px">${roleBadge(r)}<span class="tiny muted">${fmtD(r.verifiedAt)}</span></span></div>`).join("")}
+    ${cr.map(r=>`<div class="role-line"><span class="role-name">${esc(r.role)}</span>${roleBadge(r)}</div>`).join("")}
+    ${!(m.roles||[]).length?`<p class="muted">No roles yet.</p>`:""}</div>
+   <div class="card stack" style="gap:10px"><h3>Summary</h3>${full?`<p>${esc(m.summary||"No summary yet.")}</p>`:`<p class="muted small">${esc(counts)}</p>`}
+    <div class="eyebrow" style="margin-top:6px">Skills</div><div class="chips">${(m.skills||[]).map(s=>`<span class="chip">${esc(s)}</span>`).join("")||'<span class="muted small">None listed</span>'}</div></div>
+   ${full?cvSections(m,{compact:true}):locked}
+  </div>
+  <div class="stack"><div class="card">${scorePanel(m)}</div>
+   <div class="card small"><div class="eyebrow" style="margin-bottom:8px">What the categories mean</div>${CATS.map(c=>`<p style="margin-bottom:6px"><b>${esc(c.label)}.</b> <span class="muted">${esc(c.bands[2][1])} scores 11–15.</span></p>`).join("")}<button class="btn sm ghost" data-act="show-rubric">See full rubric</button></div></div></div>`;
+};
+function cvSections(m,{compact=false}={}){
+  const sec=(t,items)=>items?`<div class="card stack" style="gap:12px"><h3>${t}</h3>${items}</div>`:"";
+  const exp=(m.experience||[]).map(e=>`<div><div class="row between"><b>${esc(e.role)}</b><span class="small muted">${fmtYM(e.start)} – ${e.current?"Present":fmtYM(e.end)}</span></div><div class="muted small">${esc(e.company)}</div>${e.description?`<p class="small" style="margin-top:4px">${esc(e.description)}</p>`:""}</div>`).join("<hr>");
+  const pr=(m.projects||[]).map(p=>`<div><div class="row between"><b>${esc(p.title)}</b>${p.link?`<a class="small" href="${esc(p.link)}" target="_blank" rel="noopener">Open link ↗</a>`:""}</div>${p.tools?`<div class="small muted">${esc(p.tools)}</div>`:""}<p class="small" style="margin-top:4px">${esc(p.description||"")}${p.outcome?` <b>Outcome:</b> ${esc(p.outcome)}`:""}</p></div>`).join("<hr>");
+  const ed=(m.education||[]).map(e=>`<div class="row between"><div><b>${esc(e.degree)} ${esc(e.field)}</b><div class="small muted">${esc(e.school)}</div></div><span class="small muted">${esc(e.year)}</span></div>`).join("");
+  const ce=(m.certifications||[]).map(c=>`<div class="row between"><div><b>${esc(c.name)}</b><div class="small muted">${esc(c.issuer)}</div></div><span class="small muted">${esc(c.year)}</span></div>`).join("");
+  const ac=(m.achievements||[]).filter(Boolean).map(a=>`<li>${esc(a)}</li>`).join("");
+  return sec("Work experience",exp)+sec("Projects",pr)+sec("Education",ed)+sec("Certifications",ce)+(ac?sec("Achievements",`<ul style="margin:0;padding-left:18px">${ac}</ul>`):"");
+}
+async function logView(memberId){const r=me();if(!r)return;const id=memberId+"__"+r.id;const cur=S.views[id];await put("views",id,{memberId,recruiterId:r.id,company:r.company,count:(cur?.count||0)+1,lastAt:now()}).catch(()=>{})}
+
+/* ---------- CV document ---------- */
+VIEWS.cv=({id})=>{
+  const m=S.members[id];if(!m)return`<div class="empty">CV not found.</div>`;
+  if(!canSeeFull(id))return`<div class="lock"><span class="muted">${ICON.lock}</span><div><b>Full CVs are for subscribed recruiters.</b><p class="small muted">You can still see this member's DSN ID, roles and rating on their profile.</p><div class="row" style="margin-top:10px"><button class="btn sm" data-go="talent" data-p='${esc(JSON.stringify({id}))}'>Back to profile</button></div></div></div>`;
+  if(isSubscribed()&&!viewedOnce.has(id)){viewedOnce.add(id);after(()=>logView(id))}
+  return`<div class="row between" style="margin-bottom:16px"><button class="btn sm ghost" data-act="back">← Back</button><div class="row"><span class="small muted">Standard DSN CV format</span><button class="btn primary" data-act="download-cv" data-id="${esc(id)}">Download CV (PDF)</button></div></div>${cvDoc(m)}`;
+};
+function cvDoc(m){
+  const vr=verifiedRoles(m);const roleTag=r=>r.status==="verified"?`<span class="vtag">DSN VERIFIED · ${esc(r.level.toUpperCase())}</span>`:`<span class="ctag">CLAIMED</span>`;
+  return`<article class="cv"><div class="row between" style="align-items:flex-start"><div><h1>${esc(m.name)}</h1><div class="cv-sub">${esc(m.headline||"")}</div><div class="cv-sub mono" style="font-size:12.5px;margin-top:6px">DSN ID ${esc(m.dsnId)}${m.location?" · "+esc(m.location):""}</div></div><div style="text-align:right"><div style="font-family:var(--display);font-size:34px;font-weight:700;color:#0A7338;line-height:1">${total(m)}<span style="font-size:14px;color:#6b747c">/100</span></div><div style="font-size:11px;color:#6b747c">DSN Rating${m.scoreStatus==="reviewed"?" · reviewed "+fmtD(m.reviewedAt):" · not yet reviewed"}</div></div></div>
+  <div class="cv-bar"></div>
+  <h4 style="margin-top:0">Profile</h4><p>${esc(m.summary||"")}</p>
+  <h4>Roles</h4>${(m.roles||[]).map(r=>`<div>${esc(r.role)}${r.status==="verified"?"":" ("+esc(r.level||"")+")"} ${roleTag(r)}</div>`).join("")||"<p>—</p>"}
+  <h4>DSN Rating breakdown</h4><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px 14px;font-size:13px">${CATS.map(c=>`<div>${esc(c.label)}: <b>${(m.scores||{})[c.k]||0}/20</b></div>`).join("")}</div>
+  <h4>Skills</h4><p>${esc((m.skills||[]).join(" · "))}</p>
+  <h4>Work experience</h4>${(m.experience||[]).map(e=>`<div class="it"><div class="it-h"><span>${esc(e.role)}, ${esc(e.company)}${vr.some(r=>r.role===e.role)?'<span class="vtag">ROLE VERIFIED</span>':""}</span><span class="it-m">${fmtYM(e.start)} – ${e.current?"Present":fmtYM(e.end)}</span></div><div>${esc(e.description||"")}</div></div>`).join("")||"<p>—</p>"}
+  <h4>Projects</h4>${(m.projects||[]).map(p=>`<div class="it"><div class="it-h"><span>${esc(p.title)}</span><span class="it-m">${esc(p.tools||"")}</span></div><div>${esc(p.description||"")}${p.outcome?" Outcome: "+esc(p.outcome)+".":""}</div>${p.link?`<div class="it-m">${esc(p.link)}</div>`:""}</div>`).join("")||"<p>—</p>"}
+  <h4>Education</h4>${(m.education||[]).map(e=>`<div class="it"><div class="it-h"><span>${esc(e.degree)} ${esc(e.field)}</span><span class="it-m">${esc(e.year)}</span></div><div class="it-m">${esc(e.school)}</div></div>`).join("")||"<p>—</p>"}
+  <h4>Certifications</h4>${(m.certifications||[]).map(c=>`<div class="it"><div class="it-h"><span>${esc(c.name)}</span><span class="it-m">${esc(c.year)}</span></div><div class="it-m">${esc(c.issuer)}</div></div>`).join("")||"<p>—</p>"}
+  ${(m.achievements||[]).filter(Boolean).length?`<h4>Achievements</h4><ul style="margin:0;padding-left:18px">${m.achievements.filter(Boolean).map(a=>`<li>${esc(a)}</li>`).join("")}</ul>`:""}
+  <div class="foot">Generated from the DSN Talent Platform on ${fmtD(now())}. Items marked DSN VERIFIED were checked by a DSN peer reviewer; items marked CLAIMED are the member's own statement. To engage this member, send a talent request through DSN.</div></article>`;
+}
+async function downloadCV(id){
+  const m=S.members[id];if(!m||!canSeeFull(id))return;
+  if(!window.jspdf){toast("PDF tool didn't load. Check your connection and try again.");return}
+  const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:"pt",format:"a4"});const W=595,L=48,R=W-48;let y=56;
+  const need=h=>{if(y+h>790){doc.addPage();y=56}};
+  const txt=(s,{size=10,bold=false,color=[27,31,35],indent=0,gap=4}={})=>{doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(size);doc.setTextColor(...color);const lines=doc.splitTextToSize(String(s||""),R-L-indent);lines.forEach(l=>{need(size+2);doc.text(l,L+indent,y);y+=size+3});y+=gap};
+  const head=t=>{y+=6;need(24);doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(15,155,74);doc.text(t.toUpperCase(),L,y);y+=5;doc.setDrawColor(220,226,222);doc.line(L,y,R,y);y+=14};
+  const clean=s=>String(s||"").replace(/[–—]/g,"-").replace(/₦/g,"NGN ").replace(/[^\x00-\xFF]/g,"");
+  doc.setFont("helvetica","bold");doc.setFontSize(22);doc.setTextColor(27,31,35);doc.text(clean(m.name),L,y);
+  doc.setFontSize(24);doc.setTextColor(15,155,74);doc.text(String(total(m)),R-34,y,{align:"right"});doc.setFontSize(10);doc.setTextColor(107,116,124);doc.text("/100",R,y,{align:"right"});y+=16;
+  txt(clean(m.headline),{size:11,color:[74,84,93],gap:0});txt("DSN ID "+m.dsnId+(m.location?"  |  "+clean(m.location):"")+"  |  DSN Rating "+(m.scoreStatus==="reviewed"?"reviewed "+fmtD(m.reviewedAt):"not yet reviewed"),{size:9,color:[107,116,124]});
+  doc.setFillColor(15,155,74);doc.rect(L,y,(R-L)*.7,3,"F");doc.setFillColor(222,7,40);doc.rect(L+(R-L)*.7,y,(R-L)*.15,3,"F");doc.setFillColor(33,46,129);doc.rect(L+(R-L)*.85,y,(R-L)*.15,3,"F");y+=16;
+  head("Profile");txt(clean(m.summary));
+  head("Roles");(m.roles||[]).forEach(r=>txt(clean(r.role)+(r.status==="verified"?"  -  DSN VERIFIED ("+r.level+")":"  -  Claimed, not verified"),{bold:r.status==="verified",gap:1}));y+=3;
+  head("DSN Rating breakdown");CATS.forEach(c=>txt(c.label+": "+((m.scores||{})[c.k]||0)+"/20",{gap:0}));y+=4;
+  head("Skills");txt(clean((m.skills||[]).join("  |  ")));
+  head("Work experience");(m.experience||[]).forEach(e=>{txt(clean(e.role+", "+e.company),{bold:true,gap:0});txt(fmtYM(e.start)+" - "+(e.current?"Present":fmtYM(e.end)),{size:9,color:[107,116,124],gap:1});txt(clean(e.description),{gap:8})});
+  head("Projects");(m.projects||[]).forEach(p=>{txt(clean(p.title),{bold:true,gap:0});if(p.tools)txt(clean(p.tools),{size:9,color:[107,116,124],gap:1});txt(clean((p.description||"")+(p.outcome?" Outcome: "+p.outcome+".":"")),{gap:p.link?0:8});if(p.link)txt(clean(p.link),{size:9,color:[47,60,145],gap:8})});
+  head("Education");(m.education||[]).forEach(e=>{txt(clean(e.degree+" "+e.field+" ("+e.year+")"),{bold:true,gap:0});txt(clean(e.school),{size:9,color:[107,116,124],gap:6})});
+  head("Certifications");(m.certifications||[]).forEach(c=>{txt(clean(c.name+" ("+c.year+")"),{bold:true,gap:0});txt(clean(c.issuer),{size:9,color:[107,116,124],gap:6})});
+  if((m.achievements||[]).filter(Boolean).length){head("Achievements");m.achievements.filter(Boolean).forEach(a=>txt("- "+clean(a),{gap:1}))}
+  y+=10;txt("Generated from the DSN Talent Platform on "+fmtD(now())+". DSN VERIFIED items were checked by a DSN peer reviewer. To engage this member, send a talent request through DSN.",{size:8,color:[107,116,124]});
+  const blob=doc.output("blob");const fname="DSN-CV-"+m.dsnId+".pdf";
+  if(DL){try{await DL.save({filename:fname,data:blob});toast("CV ready")}catch(e){if(e.code!=="declined")toast("Download didn't start: "+(e.message||e.code))}}
+  else{try{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fname;document.body.appendChild(a);a.click();a.remove()}catch(e){toast("Downloads aren't available in this view")}}
+}
+
+/* ---------- apply ---------- */
+VIEWS.apply=()=>{
+  if(R.p.done)return`<div class="card stack" style="max-width:640px;margin:0 auto"><span class="badge verified" style="align-self:flex-start">${ICON.check}Application received</span><h2>Thank you, ${esc(R.p.name)}.</h2><p>DSN will review your application and create your profile. When it's ready, log in with your DSN ID <b class="mono">${esc(R.p.id)}</b> and create your own password.</p><div class="row"><button class="btn primary" data-go="login" data-p='{"kind":"member"}'>Go to log in</button><button class="btn" data-go="home">Back home</button></div></div>`;
+  const st=settings();
+  return`<div class="split"><form class="card stack" id="apply-form" novalidate><div><div class="eyebrow">Membership application</div><h1 style="font-size:30px">Join the DSN Talent Platform</h1><p class="muted" style="margin-top:6px">Use the DSN ID from your DSN programme records. Your contact details are only seen by the DSN team; recruiters never see them.</p></div>
+   <h3>About you</h3><div class="fgrid">
+    ${field("a-dsn","DSN ID",{req:true,ph:"e.g. DSN-2024-0187",hint:"As shown on your DSN programme records"})}
+    ${field("a-name","Full name",{req:true})}
+    ${field("a-email","Email",{type:"email",req:true,hint:"Only DSN sees this"})}
+    ${field("a-phone","Phone number",{hint:"Only DSN sees this"})}
+    ${field("a-gender","Gender",{opts:["Female","Male","Prefer not to say"]})}
+    ${field("a-age","Age range",{opts:["18–24","25–34","35–44","45+"]})}
+    ${field("a-state","State of residence",{req:true,ph:"e.g. Lagos"})}
+    ${field("a-edu","Highest education",{opts:["Secondary school","OND / NCE","HND","Bachelor's degree","Master's degree","PhD"]})}
+   </div>
+   <h3>What you do now</h3><p class="small muted" style="margin-top:-8px">We use this to measure the impact of DSN programmes over time.</p><div class="fgrid">
+    ${field("a-emp","Current employment status",{opts:EMP,req:true})}
+    ${field("a-years","Years of relevant experience",{opts:["None yet","Less than 1 year","1–2 years","3–5 years","6–10 years","10+ years"],req:true})}
+    ${field("a-title","Current job title",{ph:"Leave blank if not working"})}
+    ${field("a-org","Current organisation",{ph:"Leave blank if not working"})}
+    ${field("a-sector","Sector",{opts:["Fintech / Banking","Health","Education","Agriculture","Government / Public sector","Telecoms","Energy / Oil & gas","Retail / FMCG","NGO / Development","Tech / Startups","Other"]})}
+    ${field("a-income","Monthly income range (optional)",{opts:["Prefer not to say","No income","Below ₦100k","₦100k–₦250k","₦250k–₦500k","₦500k–₦1m","Above ₦1m"],hint:"Used only in anonymous impact reports"})}
+   </div>
+   <h3>DSN programmes</h3><div class="checks">${(st.programmes||[]).map((p,i)=>`<label class="check"><input type="checkbox" name="a-prog" value="${esc(p)}"> ${esc(p)}</label>`).join("")}</div>
+   <h3>Roles you want to be known for</h3><div class="fgrid">
+    ${field("a-role","Main role",{opts:rolesList(),req:true})}
+    ${field("a-role2","Second role (optional)",{opts:rolesList()})}
+    ${field("a-impact","How has DSN training helped you so far?",{rows:3,full:true})}
+    ${field("a-goals","What opportunity are you looking for?",{rows:2,full:true,ph:"e.g. a junior data analyst role in fintech"})}
+   </div>
+   <label class="check"><input type="checkbox" id="a-consent"> I agree that DSN may store my information, show my anonymised profile (DSN ID, roles, rating) publicly, share my full CV with subscribed recruiters, and use my answers in anonymous impact reports.</label>
+   <div id="a-err" class="note warn" hidden></div>
+   <div class="row"><button class="btn primary" type="submit">Submit application</button><span class="small muted">Already approved? <a href="#login" data-go="login" data-p='{"kind":"member"}'>Log in</a></span></div></form>
+  <div class="stack"><div class="card stack"><h3>What happens next</h3><ol class="steps"><li><span>DSN checks your DSN ID and creates your profile.</span></li><li><span>You log in with your DSN ID and create a password.</span></li><li><span>You fill in your CV. Every profile starts at 5/20 per category.</span></li><li><span>Submit your profile for rating, and request verification for your roles.</span></li><li><span>Recruiters find you through DSN. You're never contacted directly.</span></li></ol></div></div></div>`;
+};
+async function submitApply(e){
+  e.preventDefault();const v=id=>($("#"+id)?.value||"").trim();const err=$("#a-err");
+  const dsn=cleanId(v("a-dsn"));const miss=[];
+  if(!dsn)miss.push("DSN ID");if(!v("a-name"))miss.push("full name");if(!/^\S+@\S+\.\S+$/.test(v("a-email")))miss.push("a valid email");if(!v("a-state"))miss.push("state");if(!v("a-emp"))miss.push("employment status");if(!v("a-years"))miss.push("years of experience");if(!v("a-role"))miss.push("main role");
+  if(!$("#a-consent").checked)miss.push("your consent");
+  if(miss.length){err.hidden=false;err.textContent="Please add: "+miss.join(", ")+".";err.scrollIntoView({block:"center"});return}
+  if(S.members[dsn]){err.hidden=false;err.textContent="A profile already exists for "+dsn+". Log in with your DSN ID instead.";return}
+  if(S.applications[dsn]?.status==="pending"){err.hidden=false;err.textContent="We already have a pending application for "+dsn+". DSN will be in touch.";return}
+  const app={dsnId:dsn,name:v("a-name"),email:v("a-email"),phone:v("a-phone"),gender:v("a-gender"),ageRange:v("a-age"),state:v("a-state"),education:v("a-edu"),employmentStatus:v("a-emp"),yearsExp:v("a-years"),currentTitle:v("a-title"),currentOrg:v("a-org"),sector:v("a-sector"),incomeBand:v("a-income"),programmes:[...document.querySelectorAll("input[name=a-prog]:checked")].map(i=>i.value),primaryRole:v("a-role"),otherRoles:v("a-role2")?[v("a-role2")]:[],dsnImpact:v("a-impact"),goals:v("a-goals"),consent:true,status:"pending",createdAt:now()};
+  await put("applications",dsn,app);go("apply",{done:true,id:dsn,name:app.name.split(" ")[0]});
+}
+
+/* ---------- login ---------- */
+VIEWS.login=(p)=>{
+  const kind=p.kind||UI.tab.login||"member";const step=p.step||"id";
+  const tabs=[["member","DSN member"],["recruiter","Recruiter"],["reviewer","Peer reviewer"]];
+  const idLabel=kind==="member"?"DSN ID":kind==="recruiter"?"Recruiter ID or work email":"Reviewer ID";
+  const idPh=kind==="member"?"e.g. DSN-2024-0187":kind==="recruiter"?"e.g. RC-1001":"e.g. RV-001";
+  let inner="";
+  if(step==="id")inner=`${field("l-id",idLabel,{req:true,ph:idPh,value:p.id||""})}<button class="btn primary" type="submit">Continue</button>`;
+  else if(step==="pw")inner=`<div class="note">Logging in as <b class="mono">${esc(p.id)}</b> <button class="btn sm ghost" type="button" data-act="login-reset">Change</button></div>${field("l-pw","Password",{type:"password",req:true,attrs:'autocomplete="current-password"'})}<button class="btn primary" type="submit">Log in</button><button class="btn ghost sm" type="button" data-act="login-forgot" style="align-self:flex-start">Forgot password?</button>`;
+  else if(step==="create"||step==="forgot")inner=`<div class="note ${step==="create"?"ok":""}">${step==="create"?`Welcome! Your profile <b class="mono">${esc(p.id)}</b> is ready. Create a password to finish setting up.`:`Reset the password for <b class="mono">${esc(p.id)}</b>.`}</div>${field("l-email","Email you registered with",{type:"email",req:true,hint:"We check this against DSN records"})}${field("l-pw1","New password",{type:"password",req:true,hint:"At least 8 characters",attrs:'autocomplete="new-password"'})}${field("l-pw2","Confirm password",{type:"password",req:true,attrs:'autocomplete="new-password"'})}<button class="btn primary" type="submit">${step==="create"?"Create password and log in":"Reset password and log in"}</button><button class="btn ghost sm" type="button" data-act="login-reset" style="align-self:flex-start">Start again</button>`;
+  return`<div style="max-width:460px;margin:20px auto 0" class="stack"><div><div class="eyebrow">Log in</div><h1 style="font-size:30px">Welcome back</h1></div>
+   <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" class="${k===kind?"on":""}" data-act="login-tab" data-kind="${k}">${l}</button>`).join("")}</div>
+   <form class="card stack" id="login-form" data-kind="${kind}" data-step="${step}" data-id="${esc(p.id||"")}" novalidate>${inner}<div id="l-err" class="note warn" hidden></div></form>
+   <p class="small muted">${kind==="member"?`Not on the platform yet? <a href="#apply" data-go="apply">Apply with your DSN ID</a>. Profiles are created by DSN after your application is approved.`:kind==="recruiter"?`New company? <a href="#rc-register" data-go="rc-register">Register for recruiter access</a>.`:"Reviewer accounts are created by the DSN team."}</p></div>`;
+};
+async function submitLogin(e){
+  e.preventDefault();const f=e.target;const kind=f.dataset.kind,step=f.dataset.step;const err=$("#l-err");const fail=t=>{err.hidden=false;err.textContent=t};
+  const col=kind==="member"?"members":kind==="recruiter"?"recruiters":"reviewers";
+  if(step==="id"){
+    let raw=($("#l-id").value||"").trim();if(!raw)return fail("Enter your "+(kind==="member"?"DSN ID":"ID")+".");
+    let id=cleanId(raw);
+    if(kind==="recruiter"&&raw.includes("@")){const r=Object.values(S.recruiters).find(r=>(r.email||"").toLowerCase()===raw.toLowerCase());if(r)id=r.id}
+    const acc=S[col][id];
+    if(!acc){if(kind==="member"&&S.applications[id]?.status==="pending")return fail("Your application is still being reviewed. You can log in once DSN creates your profile.");return fail(kind==="member"?"No profile found for "+id+". Check the ID or apply first.":"No account found for that ID.")}
+    if(kind==="recruiter"&&acc.status==="pending")return fail("Your company registration is awaiting DSN approval.");
+    if(kind==="recruiter"&&acc.status==="rejected")return fail("This recruiter account isn't active. Contact DSN.");
+    if(kind==="reviewer"&&acc.active===false)return fail("This reviewer account is inactive.");
+    R.p={kind,id,step:acc.pwHash?"pw":"create"};render();return;
+  }
+  const id=f.dataset.id;const acc=S[col][id];if(!acc)return fail("Account not found.");
+  if(step==="pw"){if(!(await checkPw(acc,$("#l-pw").value)))return fail("That password doesn't match. Try again or reset it.");setSession({kind,id});toast("Logged in");go(kind==="member"?"m-home":kind==="reviewer"?"r-queue":"directory");return}
+  const email=($("#l-email").value||"").trim().toLowerCase(),p1=$("#l-pw1").value,p2=$("#l-pw2").value;
+  if((acc.email||"").toLowerCase()!==email)return fail("That email doesn't match our records for "+id+". Contact DSN if it has changed.");
+  if(p1.length<8)return fail("Use at least 8 characters.");if(p1!==p2)return fail("The two passwords don't match.");
+  const h=await hashPw(p1);const upd={...clone(acc),...h,pwSetAt:now()};await put(col,id,upd);setSession({kind,id});toast(step==="create"?"Password created":"Password reset");go(kind==="member"?"m-home":kind==="reviewer"?"r-queue":"directory");
+}
+
+/* ---------- recruiter registration ---------- */
+VIEWS["rc-register"]=(p)=>{
+  if(p.done)return`<div class="card stack" style="max-width:600px;margin:0 auto"><span class="badge pending" style="align-self:flex-start">Awaiting approval</span><h2>Registration received</h2><p>Your recruiter ID is <b class="mono">${esc(p.id)}</b>. Keep it; you'll use it to log in once DSN approves your company.</p><button class="btn" data-go="home">Back home</button></div>`;
+  return`<div class="split"><form class="card stack" id="rc-form" novalidate><div><div class="eyebrow">Recruiters & hiring partners</div><h1 style="font-size:30px">Register your company</h1><p class="muted" style="margin-top:6px">After DSN approves your company you can search the directory. A subscription unlocks names, full CVs and CV downloads.</p></div>
+   <div class="fgrid">${field("c-company","Company name",{req:true})}${field("c-industry","Industry",{req:true,ph:"e.g. Fintech"})}${field("c-name","Your name",{req:true})}${field("c-email","Work email",{type:"email",req:true})}${field("c-phone","Phone")}${field("c-size","Company size",{opts:["1–10","11–50","51–200","201–1000","1000+"]})}${field("c-needs","What talent are you looking for?",{rows:3,full:true})}${field("c-pw1","Password",{type:"password",req:true,hint:"At least 8 characters"})}${field("c-pw2","Confirm password",{type:"password",req:true})}</div>
+   <div id="c-err" class="note warn" hidden></div><button class="btn primary" type="submit" style="align-self:flex-start">Register</button></form>
+   <div class="stack"><div class="card stack"><h3>What a subscription unlocks</h3>
+   <table><tr><th></th><th>Free</th><th>Subscribed</th></tr>
+   <tr><td>DSN ID, roles, rating</td><td>Yes</td><td>Yes</td></tr><tr><td>Rating breakdown</td><td>Yes</td><td>Yes</td></tr><tr><td>Member name</td><td>Hidden</td><td>Yes</td></tr><tr><td>Full CV & download</td><td>No</td><td>Yes</td></tr><tr><td>Request specific talent</td><td>No</td><td>Yes</td></tr><tr><td>General talent request</td><td>Yes</td><td>Yes</td></tr></table>
+   <p class="small muted">Member emails and phone numbers are never shown. DSN handles introductions.</p></div></div></div>`;
+};
+async function submitRc(e){e.preventDefault();const v=id=>($("#"+id)?.value||"").trim();const err=$("#c-err");const fail=t=>{err.hidden=false;err.textContent=t};
+  if(!v("c-company")||!v("c-industry")||!v("c-name"))return fail("Please fill in company, industry and your name.");if(!/^\S+@\S+\.\S+$/.test(v("c-email")))return fail("Enter a valid work email.");
+  if(Object.values(S.recruiters).some(r=>(r.email||"").toLowerCase()===v("c-email").toLowerCase()))return fail("That email is already registered. Log in instead.");
+  if(v("c-pw1").length<8)return fail("Use a password of at least 8 characters.");if(v("c-pw1")!==v("c-pw2"))return fail("The passwords don't match.");
+  let n=1001;while(S.recruiters["RC-"+n])n++;const id="RC-"+n;const h=await hashPw(v("c-pw1"));
+  await put("recruiters",id,{id,company:v("c-company"),industry:v("c-industry"),contactName:v("c-name"),email:v("c-email"),phone:v("c-phone"),size:v("c-size"),needs:v("c-needs"),status:"pending",subscribed:false,subscribedUntil:"",subRequested:false,createdAt:now(),...h});
+  go("rc-register",{done:true,id});
+}
+
+/* ---------- MEMBER ---------- */
+function myReqs(id){return Object.values(S.requests).filter(r=>r.memberId===id).sort((a,b)=>String(b.createdAt).localeCompare(a.createdAt))}
+VIEWS["m-home"]=()=>{
+  const m=me();const comp=completeness(m);const reqs=myReqs(m.dsnId);
+  const openRating=reqs.find(r=>r.type==="rating"&&(r.status==="submitted"||r.status==="interview"));
+  const views=Object.values(S.views).filter(v=>v.memberId===m.dsnId).sort((a,b)=>String(b.lastAt).localeCompare(a.lastAt));
+  const unverified=(m.roles||[]).filter(r=>r.status==="claimed"||r.status==="rejected");
+  let next;
+  if(comp<60)next={t:"Complete your CV",d:"Your CV is "+comp+"% complete. Reviewers grade what's on it, so add your experience, projects and certificates first.",b:`<button class="btn primary" data-go="m-edit">Complete my CV</button>`};
+  else if(m.scoreStatus==="default"&&!openRating)next={t:"Submit your profile for rating",d:"You're on starting scores (25/100). A reviewer will grade your profile in five categories.",b:`<button class="btn primary" data-act="req-rating">Submit for rating review</button>`};
+  else if(unverified.length)next={t:"Verify your "+esc(unverified[0].role)+" role",d:"Claimed roles show as not verified. Send your evidence to get a verified badge.",b:`<button class="btn primary" data-act="req-role" data-role="${esc(unverified[0].role)}">Request verification</button>`};
+  else next={t:"You're all set",d:"Keep your CV current. You can add a new role or ask for a re-review when you've grown.",b:`<button class="btn" data-go="m-edit">Update my CV</button>`};
+  const interview=reqs.find(r=>r.status==="interview");
+  return`<div class="section-h"><div><div class="eyebrow">Member dashboard</div><h1 style="font-size:32px">Hello, ${esc(m.name.split(" ")[0])}</h1></div><div class="row"><button class="btn" data-go="talent" data-p='${esc(JSON.stringify({id:m.dsnId}))}'>See my public profile</button><button class="btn" data-go="cv" data-p='${esc(JSON.stringify({id:m.dsnId}))}'>View CV</button></div></div>
+  <div class="stack">
+  ${interview?`<div class="note"><b>Interview requested</b> for your ${interview.type==="role"?esc(interview.role)+" verification":"rating review"}: ${fmtDT(interview.interview?.when)}. ${interview.interview?.link?`Meeting link: <span class="mono">${esc(interview.interview.link)}</span>.`:""} ${esc(interview.interview?.note||"")}</div>`:""}
+  <div class="card row between" style="background:var(--green-soft);border-color:var(--green-line)"><div style="max-width:70ch"><div class="eyebrow">Next step</div><h3 style="margin:4px 0">${next.t}</h3><p class="small">${next.d}</p></div>${next.b}</div>
+  <div class="grid4"><div class="tile"><div class="k">DSN Rating</div><div class="v">${total(m)}<span class="small muted">/100</span></div></div><div class="tile"><div class="k">Verified roles</div><div class="v">${verifiedRoles(m).length}</div></div><div class="tile"><div class="k">CV complete</div><div class="v">${comp}%</div></div><div class="tile"><div class="k">Company views</div><div class="v">${views.reduce((a,v)=>a+(v.count||1),0)}</div></div></div>
+  <div class="split wide"><div class="stack">
+   <div class="card">${scorePanel(m)}<div class="row" style="margin-top:14px">${openRating?`<span class="badge pending">Rating review ${openRating.status==="interview"?"· interview requested":"submitted "+fmtD(openRating.createdAt)}</span>`:`<button class="btn ${m.scoreStatus==="default"?"primary":""}" data-act="req-rating">${m.scoreStatus==="reviewed"?"Request a re-review":"Submit for rating review"}</button>`}<button class="btn ghost sm" data-act="show-rubric">How am I graded?</button></div></div>
+   <div class="card"><div class="row between" style="margin-bottom:6px"><h3>My roles</h3><button class="btn sm" data-act="add-role">Add a claimed role</button></div>
+    ${(m.roles||[]).map(r=>{const open=reqs.find(q=>q.type==="role"&&q.role===r.role&&(q.status==="submitted"||q.status==="interview"));return`<div class="role-line"><div><div class="role-name">${esc(r.role)}</div><div class="small muted">${r.status==="verified"?"Verified "+fmtD(r.verifiedAt):"Claimed level: "+esc(r.level||"—")}${r.note&&r.status!=="verified"?" · Reviewer note: "+esc(r.note):""}</div></div><div class="row" style="gap:8px">${roleBadge(r,{short:true})}${open?`<span class="badge ${open.status==="interview"?"blue":"pending"}">${open.status==="interview"?"Interview":"Under review"}</span>`:r.status==="verified"?`<button class="btn sm ghost" data-act="req-role" data-role="${esc(r.role)}">Request upgrade</button>`:`<button class="btn sm" data-act="req-role" data-role="${esc(r.role)}">Request verification</button>`}</div></div>`}).join("")||`<p class="muted">No roles yet. Add the role you want to be known for.</p>`}</div>
+  </div><div class="stack">
+   <div class="card"><h3 style="margin-bottom:10px">Companies that viewed my profile</h3>${m.premium?(views.length?views.map(v=>`<div class="role-line"><span><b>${esc(v.company)}</b></span><span class="small muted">${v.count>1?v.count+" views · ":""}last ${fmtD(v.lastAt)}</span></div>`).join(""):`<p class="muted small">No company has opened your full profile yet.</p>`):`<div class="lock"><span class="muted">${ICON.lock}</span><div><b>${views.length} compan${views.length===1?"y has":"ies have"} viewed your profile</b><p class="small muted" style="margin-top:4px">${esc(settings().premiumNote||"Premium members can see which companies viewed their profile.")}</p></div></div>`}</div>
+   <div class="card"><h3 style="margin-bottom:10px">Requests and updates</h3>${reqs.length?`<div class="timeline">${reqs.slice(0,8).map(r=>`<div class="tl"><div><div class="row between"><b class="small">${r.type==="role"?"Role verification · "+esc(r.role):"Rating review"}</b>${statusBadge(r.status)}</div><div class="small muted">${esc((r.history||[]).slice(-1)[0]?.text||"")} · ${fmtD((r.history||[]).slice(-1)[0]?.at||r.createdAt)}</div>${r.outcome?.note?`<div class="small">Reviewer note: ${esc(r.outcome.note)}</div>`:""}</div></div>`).join("")}</div>`:`<p class="muted small">Nothing yet.</p>`}</div>
+   <div class="card stack" style="gap:10px"><h3>My current status</h3><p class="small muted">Keep this updated. DSN uses it to measure programme impact. It isn't shown to recruiters.</p><div class="small"><b>${esc(m.employmentStatus||"—")}</b>${m.currentTitle?" · "+esc(m.currentTitle):""}${m.currentOrg?" at "+esc(m.currentOrg):""}</div><button class="btn sm" data-act="update-status" style="align-self:flex-start">Update my status</button></div>
+   <div class="card stack" style="gap:10px"><h3>Visibility</h3><label class="check"><input type="checkbox" data-act="toggle-vis" ${m.visible!==false?"checked":""}> Show my profile in the talent directory</label><label class="check"><input type="checkbox" data-act="toggle-otw" ${m.openToWork!==false?"checked":""}> I'm open to opportunities</label></div>
+  </div></div></div>`;
+};
+function processModal(kind,role){
+  const m=me();const st=settings();const docs=kind==="role"?(st.roleDocs||[]):(st.ratingDocs||[]);
+  const subject=kind==="role"?`Role Verification – ${m.dsnId} – ${role}`:`Rating Review – ${m.dsnId}`;
+  const existing=(m.roles||[]).find(r=>r.role===role);
+  modal(`<div class="stack"><div><div class="eyebrow">${kind==="role"?"Role verification":"Rating review"}</div><h2>${kind==="role"?"Verify "+esc(role):"Submit your profile for rating"}</h2></div>
+   ${kind==="role"?`<div class="fgrid">${field("pv-level","Level you are claiming",{opts:LEVELS,value:existing?.status==="verified"?(LEVELS[Math.min(LEVELS.indexOf(existing.level)+1,3)]):existing?.level||"Junior",req:true})}</div>`:`<p class="small muted">A reviewer will grade your CV and documents in five categories out of 20. They may invite you to a short online interview first.</p>`}
+   <ol class="steps"><li><div class="stack" style="gap:6px"><b>Email your documents to</b>${copyRow(st.verifyEmail||"")}</div></li><li><div class="stack" style="gap:6px"><b>Use this subject line</b>${copyRow(subject)}</div></li><li><div><b>Attach these documents</b><ul style="margin:6px 0 0;padding-left:18px" class="small">${docs.map(d=>`<li>${esc(d)}</li>`).join("")}</ul></div></li><li><span><b>Confirm below.</b> Your request goes to a reviewer who ${kind==="role"?"can approve it, assign a different role or level, or ask for an interview":"grades you against the rubric and may ask for an interview"}.</span></li></ol>
+   ${st.processNote?`<div class="note small">${esc(st.processNote)}</div>`:""}
+   <label class="check"><input type="checkbox" id="pv-sent"> I've sent the email with my documents.</label>
+   <div class="row"><button class="btn primary" data-act="confirm-process" data-kind="${kind}" data-role="${esc(role||"")}">Submit request</button><button class="btn ghost" data-act="close-modal">Cancel</button></div></div>`);
+}
+async function confirmProcess(kind,role){
+  if(!$("#pv-sent").checked){toast("Tick the box once you've sent your documents");return}
+  const m=clone(me());const id=rid(kind==="role"?"RQ-role":"RQ-rate");const level=kind==="role"?$("#pv-level").value||"Junior":"";
+  const req={id,type:kind,memberId:m.dsnId,status:"submitted",createdAt:now(),reviewerId:"",history:[{at:now(),by:"member",text:kind==="role"?`Verification requested for ${role} (${level}); documents emailed.`:"Profile submitted for rating review; documents emailed."}]};
+  if(kind==="role"){req.role=role;req.level=level;const r=(m.roles||[]).find(r=>r.role===role);if(r&&r.status!=="verified"){r.status="pending";r.level=level}}
+  else if(m.scoreStatus!=="reviewed")m.scoreStatus="pending";
+  await put("requests",id,req);await put("members",m.dsnId,m);closeModal();toast("Request submitted");
+}
+function addRoleModal(){modal(`<form class="stack" id="addrole-form"><h2>Add a claimed role</h2><p class="small muted">It will show as "Claimed, not verified" until a reviewer verifies it.</p><div class="fgrid">${field("ar-role","Role",{opts:rolesList(),req:true})}${field("ar-level","Your level",{opts:LEVELS,req:true,value:"Junior"})}</div><div class="row"><button class="btn primary" type="submit">Add role</button><button class="btn ghost" type="button" data-act="close-modal">Cancel</button></div></form>`)}
+function statusModal(){const m=me();modal(`<form class="stack" id="status-form"><h2>Update my current status</h2><div class="fgrid">${field("us-emp","Employment status",{opts:EMP,value:m.employmentStatus,req:true})}${field("us-title","Job title",{value:m.currentTitle})}${field("us-org","Organisation",{value:m.currentOrg,full:true})}</div><div class="row"><button class="btn primary" type="submit">Save</button><button class="btn ghost" type="button" data-act="close-modal">Cancel</button></div></form>`)}
+
+/* ---------- member CV editor ---------- */
+const SECTIONS={
+ experience:{title:"Work experience",blank:{company:"",role:"",start:"",end:"",current:false,description:""},fields:[["role","Job title"],["company","Company / organisation"],["start","Start (month)","month"],["end","End (month)","month"],["current","I work here now","check"],["description","What you did and achieved","area"]]},
+ projects:{title:"Projects",blank:{title:"",link:"",tools:"",description:"",outcome:""},fields:[["title","Project title"],["link","Link (GitHub, Kaggle, dashboard…)","url"],["tools","Tools used"],["outcome","Outcome or impact"],["description","What the project does and your part in it","area"]]},
+ education:{title:"Education",blank:{school:"",degree:"",field:"",year:""},fields:[["school","School"],["degree","Degree / qualification"],["field","Course of study"],["year","Year completed"]]},
+ certifications:{title:"Certifications",blank:{name:"",issuer:"",year:"",link:""},fields:[["name","Certificate"],["issuer","Issued by"],["year","Year"],["link","Link to verify (optional)","url"]]}
+};
+VIEWS["m-edit"]=()=>{
+  const m=me();if(!DRAFT||DRAFT.dsnId!==m.dsnId)DRAFT=clone(m);const d=DRAFT;
+  const sec=(k)=>{const S_=SECTIONS[k];return`<div class="card stack"><div class="row between"><h3>${S_.title}</h3><button class="btn sm" type="button" data-act="cv-add" data-sec="${k}">Add</button></div>
+   ${(d[k]||[]).map((it,i)=>`<div class="entry"><div class="fgrid">${S_.fields.map(([f,l,t])=>{const idd=`cv-${k}-${i}-${f}`;if(t==="check")return`<label class="check" style="align-self:end"><input type="checkbox" id="${idd}" data-bind="${k}.${i}.${f}" ${it[f]?"checked":""}> ${l}</label>`;if(t==="area")return`<label class="f full" for="${idd}">${l}<textarea id="${idd}" data-bind="${k}.${i}.${f}" rows="3">${esc(it[f])}</textarea></label>`;return`<label class="f" for="${idd}">${l}<input id="${idd}" type="${t||"text"}" data-bind="${k}.${i}.${f}" value="${esc(it[f])}"></label>`}).join("")}</div><div class="row between"><div class="row" style="gap:6px"><button class="btn sm ghost" type="button" data-act="cv-move" data-sec="${k}" data-i="${i}" data-dir="-1" ${i===0?"disabled":""} aria-label="Move up">↑</button><button class="btn sm ghost" type="button" data-act="cv-move" data-sec="${k}" data-i="${i}" data-dir="1" ${i===(d[k].length-1)?"disabled":""} aria-label="Move down">↓</button></div><button class="btn sm danger" type="button" data-act="cv-del" data-sec="${k}" data-i="${i}">Remove</button></div></div>`).join("")||`<p class="muted small">Nothing added yet.</p>`}</div>`};
+  return`<div class="section-h"><div><div class="eyebrow">My CV</div><h1 style="font-size:32px">Edit my CV</h1><p class="muted">Every member uses the same CV format. Only the content is yours. Contact details are never shown here.</p></div><div class="row"><button class="btn" data-act="cv-discard">Discard changes</button><button class="btn primary" data-act="cv-save">Save CV</button></div></div>
+  <div class="split"><div class="stack">
+   <div class="card stack"><h3>Basics</h3><div class="fgrid">${field("cv-headline","Headline",{value:d.headline,hint:"e.g. Data Analyst · dashboards for public health",full:true,attrs:'data-bind="headline"'})}${field("cv-location","State / city",{value:d.location,attrs:'data-bind="location"'})}${field("cv-skills","Skills",{value:(d.skills||[]).join(", "),hint:"Separate with commas",attrs:'data-bind="skills"'})}${field("cv-summary","Professional summary",{rows:4,value:d.summary,full:true,attrs:'data-bind="summary"'})}</div></div>
+   ${sec("experience")}${sec("projects")}${sec("education")}${sec("certifications")}
+   <div class="card stack"><h3>Achievements</h3>${field("cv-ach","Awards, talks, publications",{rows:3,value:(d.achievements||[]).join("\n"),hint:"One per line",attrs:'data-bind="achievements"'})}</div>
+   <div class="row"><button class="btn primary" data-act="cv-save">Save CV</button></div>
+  </div><div class="stack" style="position:sticky;top:90px"><div class="card stack"><div class="eyebrow">CV strength</div><div class="score-big"><b style="font-size:40px">${completeness(d)}%</b><span>complete</span></div><div class="bar"><i style="width:${completeness(d)}%"></i></div><ul class="small muted" style="margin:0;padding-left:18px">${[["headline","Add a headline"],["summary","Write a summary"],["skills","List 3+ skills"],["experience","Add work experience"],["projects","Add a project"],["education","Add education"],["certifications","Add a certificate"]].filter(([k])=>k==="skills"?(d.skills||[]).length<3:k==="summary"?(d.summary||"").length<=40:Array.isArray(d[k])?!d[k].length:!d[k]).map(([,t])=>`<li>${t}</li>`).join("")||"<li>Looks complete</li>"}</ul></div>
+  <div class="note small">After saving, submit your profile for a rating review from your dashboard. Scores stay at 5 per category until then.</div></div></div>`;
+};
+function bindCV(){document.querySelectorAll("[data-bind]").forEach(el=>{el.addEventListener(el.type==="checkbox"?"change":"input",()=>{const path=el.dataset.bind.split(".");let v=el.type==="checkbox"?el.checked:el.value;if(path[0]==="skills")v=v.split(",").map(s=>s.trim()).filter(Boolean);if(path[0]==="achievements")v=v.split("\n").map(s=>s.trim()).filter(Boolean);if(path.length===1)DRAFT[path[0]]=v;else DRAFT[path[0]][+path[1]][path[2]]=v})})}
+
+/* ---------- REVIEWER ---------- */
+function reviewerCan(rv,req){return req.type==="role"?rv.canRole:rv.canRating}
+VIEWS["r-queue"]=()=>{
+  const rv=me();const tab=UI.tab.rq||(rv.canRole?"role":"rating");
+  const list=Object.values(S.requests).filter(r=>r.type===tab&&(r.status==="submitted"||r.status==="interview")&&(!r.reviewerId||r.reviewerId===rv.id)).sort((a,b)=>String(a.createdAt).localeCompare(b.createdAt));
+  const tabs=[rv.canRole&&["role","Role verification"],rv.canRating&&["rating","Rating reviews"]].filter(Boolean);
+  return`<div class="section-h"><div><div class="eyebrow">Peer reviewer · ${esc(rv.id)}</div><h1 style="font-size:32px">Review queue</h1><p class="muted">${esc(rv.expertise||"")}. Members see you as Reviewer ${esc(rv.id)}, not by name.</p></div></div>
+  <div class="tabs">${tabs.map(([k,l])=>`<button class="${k===tab?"on":""}" data-act="tab" data-tab="rq" data-val="${k}">${l} (${Object.values(S.requests).filter(r=>r.type===k&&(r.status==="submitted"||r.status==="interview")&&(!r.reviewerId||r.reviewerId===rv.id)).length})</button>`).join("")}</div>
+  ${list.length?`<div class="tbl-wrap"><table><thead><tr><th>DSN ID</th><th>Member</th><th>${tab==="role"?"Claimed role":"Current rating"}</th><th>Submitted</th><th>Status</th><th></th></tr></thead><tbody>${list.map(r=>{const m=S.members[r.memberId]||{};return`<tr><td class="mono">${esc(r.memberId)}</td><td>${esc(m.name||"—")}</td><td>${tab==="role"?esc(r.role)+" · "+esc(r.level):total(m)+"/100"}</td><td>${fmtD(r.createdAt)}</td><td>${statusBadge(r.status)}${r.reviewerId===rv.id?' <span class="badge grey">Mine</span>':""}</td><td><button class="btn sm primary" data-go="r-task" data-p='${esc(JSON.stringify({id:r.id}))}'>Open</button></td></tr>`}).join("")}</tbody></table></div>`:`<div class="empty">No open ${tab==="role"?"role verifications":"rating reviews"}. New requests appear here.</div>`}`;
+};
+VIEWS["r-task"]=({id})=>{
+  const rv=me();const r=S.requests[id];if(!r)return`<div class="empty">Request not found.</div>`;const m=S.members[r.memberId];if(!m)return`<div class="empty">Member not found.</div>`;
+  if(!reviewerCan(rv,r))return`<div class="empty">You don't have permission for this type of review.</div>`;
+  const done=r.status==="completed"||r.status==="rejected";
+  const interviewBox=`<details class="card" ${r.status==="interview"?"open":""}><summary style="cursor:pointer;font-weight:700">Request an interview</summary><div class="stack" style="margin-top:12px">${r.interview?`<div class="note small">Interview set for ${fmtDT(r.interview.when)}${r.interview.link?` · <span class="mono">${esc(r.interview.link)}</span>`:""}</div>`:""}<div class="fgrid">${field("iv-when","Date and time",{type:"datetime-local",value:r.interview?.when||""})}${field("iv-link","Meeting link",{type:"url",value:r.interview?.link||"",ph:"https://meet.google.com/…"})}${field("iv-note","Message to member",{rows:2,full:true,value:r.interview?.note||"",ph:"What should they prepare?"})}</div><button class="btn blue" data-act="rv-interview" data-id="${esc(id)}" style="align-self:flex-start">${r.interview?"Update interview":"Send interview request"}</button></div></details>`;
+  let form;
+  if(r.type==="role"){
+    form=`<div class="card stack"><div><div class="eyebrow">Decision</div><h3>${esc(r.role)} · claimed ${esc(r.level)}</h3></div>
+     <label class="check"><input type="radio" name="rv-dec" value="verified" checked> Verify as claimed (${esc(r.role)} · ${esc(r.level)})</label>
+     <label class="check"><input type="radio" name="rv-dec" value="changed"> Verify with a different role or level</label>
+     <div class="fgrid" id="rv-change">${field("rv-role","Role",{opts:rolesList(),value:r.role})}${field("rv-level","Level",{opts:LEVELS,value:r.level==="Junior"?"Junior":LEVELS[Math.max(0,LEVELS.indexOf(r.level)-1)]})}</div>
+     <label class="check"><input type="radio" name="rv-dec" value="rejected"> Not verified</label>
+     ${field("rv-note","Note to member",{rows:3,hint:"Required if you change or reject. Explain what evidence was missing."})}
+     <div class="row"><button class="btn primary" data-act="rv-submit-role" data-id="${esc(id)}">Submit decision</button></div></div>`;
+  }else{
+    form=`<div class="card"><div class="eyebrow">Score each category out of 20</div>${CATS.map(c=>`<div class="scorein"><div><b>${esc(c.label)}</b><details><summary class="small muted" style="cursor:pointer">Rubric</summary><div class="rubric">${c.bands.map(([b,t])=>`<b>${b}</b><span>${esc(t)}</span>`).join("")}</div></details></div><input type="number" min="0" max="20" step="1" id="sc-${c.k}" value="${(m.scoreStatus==="reviewed"?(m.scores||{})[c.k]:"")??""}" aria-label="${esc(c.label)} score" data-act-input="score"></div>`).join("")}
+     <div class="row between" style="margin-top:14px"><span class="muted">Total</span><span class="score-big"><b id="sc-total" style="font-size:34px">—</b><span>/ 100</span></span></div>
+     ${field("rv-note","Review notes",{rows:3,hint:"Shown to the member with their result"})}
+     <div class="row" style="margin-top:12px"><button class="btn primary" data-act="rv-submit-rating" data-id="${esc(id)}">Submit scores</button></div></div>`;
+  }
+  after(()=>{const upd=()=>{let t=0,ok=true;CATS.forEach(c=>{const v=$("#sc-"+c.k)?.value;if(v===""||v==null)ok=false;t+=+v||0});if($("#sc-total"))$("#sc-total").textContent=ok?t:"—"};document.querySelectorAll("[data-act-input=score]").forEach(i=>i.addEventListener("input",upd));upd()});
+  return`<button class="btn sm ghost" data-go="r-queue" style="margin-bottom:12px">← Queue</button>
+  <div class="section-h"><div><div class="eyebrow">${r.type==="role"?"Role verification":"Rating review"} · ${esc(r.id)}</div><h1 style="font-size:28px">${esc(m.name)} <span class="mono muted" style="font-size:16px">${esc(m.dsnId)}</span></h1><p class="muted">Check the documents the member emailed to ${esc(settings().verifyEmail)} against the CV below.</p></div>${statusBadge(r.status)}</div>
+  <div class="split wide"><div class="stack"><div class="card">${scorePanel(m,{compact:true})}</div><div class="card"><h3 style="margin-bottom:8px">Roles on profile</h3>${(m.roles||[]).map(x=>`<div class="role-line"><span>${esc(x.role)}</span>${roleBadge(x)}</div>`).join("")}</div><div class="card stack" style="gap:8px"><h3>Summary</h3><p>${esc(m.summary||"")}</p><div class="chips">${(m.skills||[]).map(s=>`<span class="chip">${esc(s)}</span>`).join("")}</div></div>${cvSections(m)}</div>
+  <div class="stack">${done?`<div class="card"><h3>Completed</h3><p class="small muted">${esc((r.history||[]).slice(-1)[0]?.text||"")}</p></div>`:form+interviewBox}
+   <div class="card"><h3 style="margin-bottom:8px">History</h3><div class="timeline">${(r.history||[]).map(h=>`<div class="tl"><div class="small"><b>${esc(h.by==="member"?"Member":h.by)}</b> · ${fmtDT(h.at)}<div class="muted">${esc(h.text)}</div></div></div>`).join("")}</div></div></div></div>`;
+};
+async function rvInterview(id){const r=clone(S.requests[id]);const when=$("#iv-when").value;if(!when){toast("Pick a date and time");return}r.interview={when,link:$("#iv-link").value.trim(),note:$("#iv-note").value.trim()};r.status="interview";r.reviewerId=SESSION.id;(r.history=r.history||[]).push({at:now(),by:SESSION.id,text:"Interview requested for "+fmtDT(when)+"."});await put("requests",id,r);toast("Interview request sent to member")}
+async function rvSubmitRole(id){
+  const r=clone(S.requests[id]);const m=clone(S.members[r.memberId]);const dec=document.querySelector("input[name=rv-dec]:checked").value;const note=$("#rv-note").value.trim();
+  if(dec!=="verified"&&!note){toast("Add a note explaining your decision");return}
+  const roles=m.roles||[];let claimed=roles.find(x=>x.role===r.role);let text;
+  if(dec==="rejected"){if(claimed&&claimed.status!=="verified"){claimed.status="claimed";claimed.note=note}r.status="rejected";r.outcome={action:"rejected",note};text="Not verified for "+r.role+"."}
+  else{const role=dec==="changed"?$("#rv-role").value:r.role;const level=dec==="changed"?$("#rv-level").value:r.level;if(!role||!level){toast("Choose the role and level");return}
+    if(dec==="changed"&&role!==r.role&&claimed&&claimed.status!=="verified"){claimed.status="claimed";claimed.note="Reviewer verified "+role+" instead."}
+    let target=roles.find(x=>x.role===role);if(!target){target={role};roles.push(target)}
+    Object.assign(target,{level,status:"verified",verifiedAt:now(),verifiedBy:SESSION.id,note:dec==="changed"?note:""});
+    r.status="completed";r.outcome={action:dec,role,level,note};text=(dec==="changed"?"Verified with changes: ":"Verified as ")+role+" · "+level+".";}
+  m.roles=roles;r.completedAt=now();r.reviewerId=SESSION.id;(r.history=r.history||[]).push({at:now(),by:SESSION.id,text});
+  await put("members",m.dsnId,m);await put("requests",id,r);toast("Decision saved and shown on the member's profile");go("r-queue");
+}
+async function rvSubmitRating(id){
+  const r=clone(S.requests[id]);const m=clone(S.members[r.memberId]);const sc={};
+  for(const c of CATS){const v=$("#sc-"+c.k).value;if(v===""||+v<0||+v>20||!Number.isInteger(+v)){toast(c.label+" needs a whole number from 0 to 20");return}sc[c.k]=+v}
+  const t=Object.values(sc).reduce((a,b)=>a+b,0);
+  m.scores=sc;m.scoreStatus="reviewed";m.reviewedAt=now();m.lastReviewer=SESSION.id;
+  r.status="completed";r.scores=sc;r.completedAt=now();r.reviewerId=SESSION.id;r.outcome={action:"scored",note:$("#rv-note").value.trim(),total:t};(r.history=r.history||[]).push({at:now(),by:SESSION.id,text:"Scored "+t+"/100."});
+  await put("members",m.dsnId,m);await put("requests",id,r);toast("Scores published: "+t+"/100");go("r-queue");
+}
+VIEWS["r-done"]=()=>{const list=Object.values(S.requests).filter(r=>r.reviewerId===SESSION.id&&(r.status==="completed"||r.status==="rejected")).sort((a,b)=>String(b.completedAt).localeCompare(a.completedAt));
+  return`<div class="section-h"><h1 style="font-size:32px">Completed reviews</h1></div>${list.length?`<div class="tbl-wrap"><table><thead><tr><th>DSN ID</th><th>Type</th><th>Result</th><th>Completed</th><th></th></tr></thead><tbody>${list.map(r=>`<tr><td class="mono">${esc(r.memberId)}</td><td>${r.type==="role"?"Role · "+esc(r.role):"Rating"}</td><td>${r.type==="rating"?(r.outcome?.total??"")+"/100":r.status==="rejected"?"Not verified":esc(r.outcome?.role)+" · "+esc(r.outcome?.level)}</td><td>${fmtD(r.completedAt)}</td><td><button class="btn sm" data-go="r-task" data-p='${esc(JSON.stringify({id:r.id}))}'>View</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">You haven't completed any reviews yet.</div>`}`};
+VIEWS["r-rubric"]=()=>`<div class="section-h"><div><h1 style="font-size:32px">Rating rubric</h1><p class="muted">Five categories × 20 points = DSN Rating out of 100. New profiles start at 5 per category.</p></div></div>${rubricHTML()}`;
+function rubricHTML(){return`<div class="grid2">${CATS.map(c=>`<div class="card"><h3>${esc(c.label)} <span class="muted small">/20</span></h3><div class="rubric">${c.bands.map(([b,t])=>`<b>${b}</b><span>${esc(t)}</span>`).join("")}</div></div>`).join("")}<div class="card"><h3>Role levels</h3><div class="rubric"><b>Junior</b><span>Delivers defined tasks with guidance.</span><b>Mid</b><span>Delivers standard work independently.</span><b>Senior</b><span>Owns complex work and guides others.</span><b>Lead</b><span>Sets direction, leads teams, recognised expertise.</span></div></div></div>`}
+
+/* ---------- RECRUITER ---------- */
+VIEWS["rc-requests"]=()=>{const rc=me();const list=Object.values(S.talentRequests).filter(t=>t.recruiterId===rc.id).sort((a,b)=>String(b.createdAt).localeCompare(a.createdAt));
+  return`<div class="section-h"><div><div class="eyebrow">${esc(rc.company)}</div><h1 style="font-size:32px">Talent requests</h1><p class="muted">Tell DSN what you need. We shortlist members and make the introduction.</p></div><button class="btn primary" data-act="request-talent">New talent request</button></div>
+  ${list.length?`<div class="stack">${list.map(t=>`<div class="card stack" style="gap:10px"><div class="row between"><div><h3>${esc(t.roleNeeded)} · ${esc(t.level||"Any level")} × ${esc(t.count)}</h3><div class="small muted">${esc(t.engagement)} · ${esc(t.workMode||"")} · sent ${fmtD(t.createdAt)} · <span class="mono">${esc(t.id)}</span></div></div>${statusBadge(t.status)}</div><p class="small">${esc(t.description)}</p>${(t.specific||[]).length?`<div class="small">Requested members: ${t.specific.map(i=>`<span class="mono">${esc(i)}</span>`).join(", ")}</div>`:""}${(t.shortlist||[]).length?`<div><div class="eyebrow" style="margin-bottom:6px">DSN shortlist</div><div class="chips">${t.shortlist.map(i=>`<button class="btn sm" data-go="talent" data-p='${esc(JSON.stringify({id:i}))}'>${esc(i)}</button>`).join("")}</div></div>`:""}${t.adminNote?`<div class="note small">DSN: ${esc(t.adminNote)}</div>`:""}</div>`).join("")}</div>`:`<div class="empty">No requests yet.</div>`}`};
+function talentRequestModal(specificId){
+  const m=specificId?S.members[specificId]:null;
+  modal(`<form class="stack" id="tr-form" data-specific="${esc(specificId||"")}"><div><div class="eyebrow">Request talent through DSN</div><h2>${m?"Request "+esc(m.dsnId):"New talent request"}</h2><p class="small muted">DSN reviews every request, checks availability with members and shares a shortlist.</p></div>
+   <div class="fgrid">${field("tr-role","Role needed",{opts:rolesList(),req:true,value:m?topRole(m)?.role:""})}${field("tr-level","Level",{opts:LEVELS,value:m?topRole(m)?.level:""})}${field("tr-count","How many people",{type:"number",value:"1",attrs:'min="1"'})}${field("tr-eng","Engagement type",{opts:["Full-time","Contract","Internship","Project / gig","Talent-as-a-Service (via DSN)"],req:true})}${field("tr-mode","Work mode",{opts:["Remote","Hybrid","On-site"]})}${field("tr-dur","Start date or duration",{ph:"e.g. Start Nov, 6 months"})}${field("tr-budget","Budget range (optional)",{ph:"e.g. ₦400k–₦550k / month",full:true})}${field("tr-desc","Describe the work",{rows:4,req:true,full:true})}</div>
+   <div id="tr-err" class="note warn" hidden></div><div class="row"><button class="btn primary" type="submit">Send request to DSN</button><button class="btn ghost" type="button" data-act="close-modal">Cancel</button></div></form>`);
+}
+async function submitTR(e){e.preventDefault();const v=id=>($("#"+id)?.value||"").trim();if(!v("tr-role")||!v("tr-eng")||!v("tr-desc")){const x=$("#tr-err");x.hidden=false;x.textContent="Add the role, engagement type and a description.";return}
+  const rc=me();const sp=e.target.dataset.specific;const id=rid("TR");
+  await put("talentRequests",id,{id,recruiterId:rc.id,company:rc.company,roleNeeded:v("tr-role"),level:v("tr-level"),count:+v("tr-count")||1,engagement:v("tr-eng"),workMode:v("tr-mode"),duration:v("tr-dur"),budget:v("tr-budget"),description:v("tr-desc"),specific:sp?[sp]:[],status:"new",shortlist:[],adminNote:"",createdAt:now()});
+  closeModal();toast("Request sent. DSN will follow up.");go("rc-requests");}
+VIEWS["rc-plan"]=()=>{const rc=me();return`<div class="section-h"><div><div class="eyebrow">${esc(rc.company)}</div><h1 style="font-size:32px">Subscription</h1></div></div>
+ <div class="grid2"><div class="card stack"><div class="row between"><h3>Your plan</h3>${rc.subscribed?`<span class="badge verified">${ICON.check}Subscribed</span>`:`<span class="badge grey">Free</span>`}</div>${rc.subscribed?`<p>Active until <b>${fmtD(rc.subscribedUntil)}</b>. You can see names and full CVs, download CVs and request specific talent.</p>`:`<p>You can search the directory and see DSN IDs, roles and ratings. Subscribe to unlock names, full CVs, downloads and requests for specific members.</p>${rc.subRequested?`<div class="note">Subscription requested. The DSN partnerships team will contact you with pricing and payment details.</div>`:`<button class="btn primary" data-act="req-sub" style="align-self:flex-start">Request subscription</button>`}`}</div>
+ <div class="card"><h3 style="margin-bottom:10px">What's included</h3><table><tr><th></th><th>Free</th><th>Subscribed</th></tr><tr><td>DSN ID, roles, rating breakdown</td><td>Yes</td><td>Yes</td></tr><tr><td>Member name</td><td>Hidden</td><td>Yes</td></tr><tr><td>Full CV & PDF download</td><td>No</td><td>Yes</td></tr><tr><td>Request specific members</td><td>No</td><td>Yes</td></tr><tr><td>General talent requests</td><td>Yes</td><td>Yes</td></tr></table></div></div>`};
+
+/* ---------- ADMIN ---------- */
+VIEWS["a-home"]=()=>{
+  const apps=Object.values(S.applications).filter(a=>a.status==="pending").length;
+  const rq=Object.values(S.requests);const roleOpen=rq.filter(r=>r.type==="role"&&(r.status==="submitted"||r.status==="interview")).length;const rateOpen=rq.filter(r=>r.type==="rating"&&(r.status==="submitted"||r.status==="interview")).length;
+  const rcP=Object.values(S.recruiters).filter(r=>r.status==="pending").length;const subR=Object.values(S.recruiters).filter(r=>r.subRequested&&!r.subscribed).length;const trOpen=Object.values(S.talentRequests).filter(t=>!["placed","closed"].includes(t.status)).length;
+  const recent=rq.filter(r=>r.completedAt).sort((a,b)=>String(b.completedAt).localeCompare(a.completedAt)).slice(0,6);
+  const empty=!Object.keys(S.members).length&&!Object.keys(S.applications).length;
+  const tile=(k,v,go_)=>`<button class="tile ${v?"alert":""}" style="text-align:left;cursor:pointer" data-go="${go_}"><div class="k">${k}</div><div class="v">${v}</div></button>`;
+  return`<div class="section-h"><div><div class="eyebrow">DSN Admin</div><h1 style="font-size:32px">Overview</h1></div></div>
+  ${empty?`<div class="note warn" style="margin-bottom:16px">The platform has no records yet. <button class="btn sm" data-act="load-sample">Load sample data</button> to try every flow, or start by approving real applications.</div>`:""}
+  <div class="grid3" style="margin-bottom:20px">${tile("Applications to approve",apps,"a-apps")}${tile("Role verifications open",roleOpen,"a-verify")}${tile("Rating reviews open",rateOpen,"a-verify")}${tile("Recruiters to approve",rcP,"a-recruiters")}${tile("Subscription requests",subR,"a-recruiters")}${tile("Open partner requests",trOpen,"a-talent")}</div>
+  <div class="card"><h3 style="margin-bottom:10px">Recent decisions</h3>${recent.length?`<div class="tbl-wrap" style="border:0"><table><thead><tr><th>When</th><th>Member</th><th>Type</th><th>Reviewer</th><th>Result</th></tr></thead><tbody>${recent.map(r=>`<tr><td>${fmtD(r.completedAt)}</td><td><span class="mono">${esc(r.memberId)}</span> ${esc(S.members[r.memberId]?.name||"")}</td><td>${r.type==="role"?"Role · "+esc(r.role):"Rating"}</td><td>${esc(r.reviewerId)} · ${esc(S.reviewers[r.reviewerId]?.name||"")}</td><td>${r.type==="rating"?(r.outcome?.total??"")+"/100":r.status==="rejected"?"Not verified":esc(r.outcome?.role)+" · "+esc(r.outcome?.level)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted small">No decisions yet.</p>`}</div>`;
+};
+VIEWS["a-apps"]=()=>{const tab=UI.tab.apps||"pending";const list=Object.values(S.applications).filter(a=>a.status===tab).sort((a,b)=>String(b.createdAt).localeCompare(a.createdAt));
+  return`<div class="section-h"><div><h1 style="font-size:32px">Applications</h1><p class="muted">Approving an application creates the member's profile with starting scores of 5 per category.</p></div><button class="btn" data-act="new-member">Create a profile manually</button></div>
+  <div class="tabs">${["pending","approved","rejected"].map(k=>`<button class="${k===tab?"on":""}" data-act="tab" data-tab="apps" data-val="${k}">${k[0].toUpperCase()+k.slice(1)} (${Object.values(S.applications).filter(a=>a.status===k).length})</button>`).join("")}</div>
+  ${list.length?`<div class="tbl-wrap"><table><thead><tr><th>DSN ID</th><th>Name</th><th>Main role</th><th>Status now</th><th>Programmes</th><th>Applied</th><th></th></tr></thead><tbody>${list.map(a=>`<tr><td class="mono">${esc(a.dsnId)}</td><td>${esc(a.name)}<div class="small muted">${esc(a.email)}</div></td><td>${esc(a.primaryRole)}</td><td>${esc(a.employmentStatus)}</td><td class="small">${esc((a.programmes||[]).join(", "))}</td><td>${fmtD(a.createdAt)}</td><td><button class="btn sm" data-act="view-app" data-id="${esc(a.dsnId)}">Review</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No ${tab} applications.</div>`}`};
+function appModal(id){const a=S.applications[id];const row=(k,v)=>`<tr><td class="muted" style="width:40%">${k}</td><td>${esc(v||"—")}</td></tr>`;
+  modal(`<div class="stack"><div class="row between"><div><div class="eyebrow">Application</div><h2>${esc(a.name)} <span class="mono muted" style="font-size:15px">${esc(a.dsnId)}</span></h2></div>${statusBadge(a.status)}</div>
+  <div class="tbl-wrap"><table>${row("Email",a.email)}${row("Phone",a.phone)}${row("Gender / age",[a.gender,a.ageRange].filter(Boolean).join(" · "))}${row("State",a.state)}${row("Education",a.education)}${row("Employment status",a.employmentStatus)}${row("Title / organisation",[a.currentTitle,a.currentOrg].filter(Boolean).join(" at "))}${row("Sector",a.sector)}${row("Experience",a.yearsExp)}${row("Income range",a.incomeBand)}${row("DSN programmes",(a.programmes||[]).join(", "))}${row("Roles",[a.primaryRole,...(a.otherRoles||[])].join(", "))}${row("DSN impact so far",a.dsnImpact)}${row("Looking for",a.goals)}</table></div>
+  ${a.status==="pending"?`<div class="note small">Check the DSN ID against programme records before approving.</div><div class="row"><button class="btn primary" data-act="approve-app" data-id="${esc(id)}">Approve and create profile</button><button class="btn danger" data-act="reject-app" data-id="${esc(id)}">Reject</button><button class="btn ghost" data-act="close-modal">Close</button></div>`:`<div class="row"><button class="btn ghost" data-act="close-modal">Close</button></div>`}</div>`,{wide:true});}
+function levelFromYears(y){return/6–10|10\+/.test(y)?"Senior":/3–5/.test(y)?"Mid-Level":"Junior"}
+async function approveApp(id){const a=clone(S.applications[id]);if(S.members[id]){toast("A profile already exists for "+id);return}
+  const lv=levelFromYears(a.yearsExp||"");
+  const m={dsnId:id,name:a.name,email:a.email,phone:a.phone||"",gender:a.gender||"",location:a.state||"",headline:a.primaryRole||"",summary:"",skills:[],experience:a.currentTitle?[{company:a.currentOrg||"",role:a.currentTitle,start:"",end:"",current:true,description:""}]:[],projects:[],education:[],certifications:[],achievements:[],
+    roles:[a.primaryRole,...(a.otherRoles||[])].filter(Boolean).map(r=>({role:r,level:lv,status:"claimed",note:""})),scores:{tech:5,projects:5,experience:5,education:5,soft:5},scoreStatus:"default",reviewedAt:null,premium:false,visible:true,openToWork:true,
+    employmentStatus:a.employmentStatus,currentTitle:a.currentTitle||"",currentOrg:a.currentOrg||"",programmes:a.programmes||[],createdAt:now(),impact:[{date:now(),status:a.employmentStatus,title:a.currentTitle||"",org:a.currentOrg||"",source:"Application"}],salt:"",pwHash:""};
+  await put("members",id,m);a.status="approved";a.decidedAt=now();await put("applications",id,a);closeModal();toast("Profile created. "+a.name.split(" ")[0]+" can now log in with "+id);}
+async function rejectApp(id){const a=clone(S.applications[id]);a.status="rejected";a.decidedAt=now();await put("applications",id,a);closeModal();toast("Application rejected")}
+function newMemberModal(){modal(`<form class="stack" id="nm-form"><h2>Create a member profile</h2><p class="small muted">For members DSN onboards directly. They log in with the DSN ID and set their own password.</p><div class="fgrid">${field("nm-id","DSN ID",{req:true})}${field("nm-name","Full name",{req:true})}${field("nm-email","Email",{type:"email",req:true})}${field("nm-state","State")}${field("nm-emp","Employment status",{opts:EMP,req:true})}${field("nm-role","Main role",{opts:rolesList(),req:true})}</div><div id="nm-err" class="note warn" hidden></div><div class="row"><button class="btn primary" type="submit">Create profile</button><button class="btn ghost" type="button" data-act="close-modal">Cancel</button></div></form>`)}
+VIEWS["a-members"]=()=>{const q=(UI.tab.mq||"").toLowerCase();let list=Object.values(S.members);if(q)list=list.filter(m=>(m.dsnId+" "+m.name+" "+(m.roles||[]).map(r=>r.role).join(" ")).toLowerCase().includes(q));list.sort((a,b)=>total(b)-total(a));
+  return`<div class="section-h"><div><h1 style="font-size:32px">Members</h1><p class="muted">${Object.keys(S.members).length} profiles</p></div><div class="row"><input type="search" id="mq" placeholder="Search name, DSN ID or role" value="${esc(UI.tab.mq||"")}" style="width:260px" aria-label="Search members"><button class="btn" data-act="new-member">Create profile</button></div></div>
+  <div class="tbl-wrap"><table><thead><tr><th>DSN ID</th><th>Name</th><th>Rating</th><th>Roles</th><th>Premium</th><th>Login</th><th></th></tr></thead><tbody>${list.map(m=>`<tr><td class="mono">${esc(m.dsnId)}</td><td>${esc(m.name)}<div class="small muted">${esc(m.employmentStatus||"")}</div></td><td class="num">${total(m)} <span class="small muted">${m.scoreStatus}</span></td><td class="small">${(m.roles||[]).map(r=>`${esc(r.role)}${r.status==="verified"?" ✓ "+esc(r.level):" ("+esc(r.status)+")"}`).join("<br>")}</td><td><label class="check"><input type="checkbox" data-act="toggle-premium" data-id="${esc(m.dsnId)}" ${m.premium?"checked":""}> Premium</label></td><td class="small">${m.pwHash?"Password set":"Not yet"}</td><td><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-go="talent" data-p='${esc(JSON.stringify({id:m.dsnId}))}'>Profile</button><button class="btn sm" data-act="admin-member" data-id="${esc(m.dsnId)}">Manage</button></div></td></tr>`).join("")}</tbody></table></div>`};
+function adminMemberModal(id){const m=S.members[id];modal(`<div class="stack"><div><div class="eyebrow">Manage member</div><h2>${esc(m.name)} <span class="mono muted" style="font-size:15px">${esc(id)}</span></h2><p class="small muted">${esc(m.email)} ${m.phone?"· "+esc(m.phone):""}</p></div>
+ <div class="card stack" style="padding:16px"><h3>Override scores</h3><p class="small muted">Use only to correct a review. The change is recorded.</p><div class="grid3">${CATS.map(c=>field("ov-"+c.k,c.short,{type:"number",value:(m.scores||{})[c.k],attrs:'min="0" max="20"'})).join("")}</div>${field("ov-status","Score status",{opts:["default","pending","reviewed"],value:m.scoreStatus})}<button class="btn sm primary" data-act="save-override" data-id="${esc(id)}" style="align-self:flex-start">Save scores</button></div>
+ <div class="card stack" style="padding:16px"><h3>Account</h3><div class="row"><button class="btn sm" data-act="reset-pw" data-kind="members" data-id="${esc(id)}">Reset password</button><button class="btn sm" data-act="toggle-hide" data-id="${esc(id)}">${m.visible===false?"Show in directory":"Hide from directory"}</button></div><p class="small muted">Resetting clears the password. The member creates a new one at next log in, after confirming their registered email.</p></div>
+ <div class="card" style="padding:16px"><h3 style="margin-bottom:8px">Impact history</h3>${(m.impact||[]).map(i=>`<div class="role-line small"><span>${fmtD(i.date)} · ${esc(i.status)}${i.title?" · "+esc(i.title):""}${i.org?" at "+esc(i.org):""}</span><span class="muted">${esc(i.source)}</span></div>`).join("")}</div>
+ <button class="btn ghost" data-act="close-modal" style="align-self:flex-start">Close</button></div>`,{wide:true})}
+VIEWS["a-verify"]=()=>{const tab=UI.tab.av||"open";const rq=Object.values(S.requests).filter(r=>tab==="open"?(r.status==="submitted"||r.status==="interview"):(r.status==="completed"||r.status==="rejected")).sort((a,b)=>String(b.createdAt).localeCompare(a.createdAt));const rvs=Object.values(S.reviewers).filter(r=>r.active!==false);
+  return`<div class="section-h"><div><h1 style="font-size:32px">Verifications & reviews</h1><p class="muted">Assign requests to a reviewer, or leave unassigned so any eligible reviewer can pick them up. Reviewer names are visible only here.</p></div></div>
+  <div class="tabs">${[["open","Open"],["done","Completed"]].map(([k,l])=>`<button class="${k===tab?"on":""}" data-act="tab" data-tab="av" data-val="${k}">${l}</button>`).join("")}</div>
+  ${rq.length?`<div class="tbl-wrap"><table><thead><tr><th>Request</th><th>Member</th><th>Type</th><th>Status</th><th>Reviewer</th><th>Created</th></tr></thead><tbody>${rq.map(r=>`<tr><td class="mono small">${esc(r.id)}</td><td><span class="mono">${esc(r.memberId)}</span><div class="small muted">${esc(S.members[r.memberId]?.name||"")}</div></td><td>${r.type==="role"?"Role · "+esc(r.role)+" ("+esc(r.level)+")":"Rating review"}${r.outcome?`<div class="small muted">${r.type==="rating"?"Scored "+(r.outcome.total??"")+"/100":esc(r.outcome.action)+(r.outcome.role?" · "+esc(r.outcome.role)+" "+esc(r.outcome.level):"")}</div>`:""}</td><td>${statusBadge(r.status)}</td><td>${tab==="open"?`<select data-act="assign" data-id="${esc(r.id)}" aria-label="Assign reviewer"><option value="">Unassigned</option>${rvs.filter(v=>reviewerCan(v,r)).map(v=>`<option value="${v.id}" ${v.id===r.reviewerId?"selected":""}>${v.id} · ${esc(v.name)}</option>`).join("")}</select>`:`${esc(r.reviewerId)} · ${esc(S.reviewers[r.reviewerId]?.name||"")}`}</td><td>${fmtD(r.createdAt)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Nothing here.</div>`}`};
+VIEWS["a-reviewers"]=()=>{const list=Object.values(S.reviewers).sort((a,b)=>a.id.localeCompare(b.id));
+  return`<div class="section-h"><div><h1 style="font-size:32px">Peer reviewers</h1><p class="muted">Role verifiers approve or change claimed roles. Rating reviewers grade credentials and can interview.</p></div><button class="btn primary" data-act="new-reviewer">Add reviewer</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Expertise</th><th>Can verify roles</th><th>Can rate profiles</th><th>Completed</th><th>Status</th><th></th></tr></thead><tbody>${list.map(r=>`<tr><td class="mono">${esc(r.id)}</td><td>${esc(r.name)}<div class="small muted">${esc(r.email)}</div></td><td class="small">${esc(r.expertise)}</td><td><input type="checkbox" data-act="rv-perm" data-f="canRole" data-id="${r.id}" ${r.canRole?"checked":""} aria-label="Can verify roles"></td><td><input type="checkbox" data-act="rv-perm" data-f="canRating" data-id="${r.id}" ${r.canRating?"checked":""} aria-label="Can rate profiles"></td><td class="num">${Object.values(S.requests).filter(q=>q.reviewerId===r.id&&q.completedAt).length}</td><td>${r.active===false?'<span class="badge grey">Inactive</span>':'<span class="badge verified">Active</span>'}</td><td><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-act="rv-active" data-id="${r.id}">${r.active===false?"Activate":"Deactivate"}</button><button class="btn sm" data-act="reset-pw" data-kind="reviewers" data-id="${r.id}">Reset password</button></div></td></tr>`).join("")}</tbody></table></div>`};
+function newReviewerModal(){modal(`<form class="stack" id="nr-form"><h2>Add a peer reviewer</h2><div class="fgrid">${field("nr-name","Full name",{req:true})}${field("nr-email","Email",{type:"email",req:true,hint:"They confirm this when creating a password"})}${field("nr-exp","Expertise",{full:true,ph:"e.g. Data engineering, analytics"})}</div><div class="checks"><label class="check"><input type="checkbox" id="nr-role" checked> Can verify roles</label><label class="check"><input type="checkbox" id="nr-rate"> Can rate profiles (credentials & interviews)</label></div><div id="nr-err" class="note warn" hidden></div><div class="row"><button class="btn primary" type="submit">Create reviewer</button><button class="btn ghost" type="button" data-act="close-modal">Cancel</button></div></form>`)}
+VIEWS["a-recruiters"]=()=>{const list=Object.values(S.recruiters).sort((a,b)=>(a.status==="pending"?-1:0)-(b.status==="pending"?-1:0)||String(b.createdAt).localeCompare(a.createdAt));
+  return`<div class="section-h"><div><h1 style="font-size:32px">Recruiters</h1><p class="muted">Approve companies and manage subscriptions. Subscribers see names and full CVs.</p></div></div>
+  <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Company</th><th>Contact</th><th>Status</th><th>Subscription</th><th>Profiles viewed</th><th></th></tr></thead><tbody>${list.map(r=>`<tr><td class="mono">${esc(r.id)}</td><td>${esc(r.company)}<div class="small muted">${esc(r.industry)} · ${esc(r.size||"")}</div></td><td class="small">${esc(r.contactName)}<br>${esc(r.email)}</td><td>${statusBadge(r.status)}</td><td>${r.subscribed?`<span class="badge verified">Until ${fmtD(r.subscribedUntil)}</span>`:r.subRequested?'<span class="badge pending">Requested</span>':'<span class="badge grey">Free</span>'}</td><td class="num">${Object.values(S.views).filter(v=>v.recruiterId===r.id).length}</td><td><div class="row" style="gap:6px;flex-wrap:nowrap">${r.status==="pending"?`<button class="btn sm primary" data-act="rc-approve" data-id="${r.id}">Approve</button><button class="btn sm danger" data-act="rc-reject" data-id="${r.id}">Reject</button>`:`<button class="btn sm" data-act="rc-sub" data-id="${r.id}">${r.subscribed?"Edit subscription":"Activate subscription"}</button>`}</div></td></tr>`).join("")}</tbody></table></div>`};
+function subModal(id){const r=S.recruiters[id];const def=new Date(Date.now()+365*864e5).toISOString().slice(0,10);modal(`<div class="stack"><h2>Subscription · ${esc(r.company)}</h2>${field("sub-until","Active until",{type:"date",value:r.subscribedUntil||def})}<div class="row"><button class="btn primary" data-act="sub-save" data-id="${id}">${r.subscribed?"Update":"Activate"}</button>${r.subscribed?`<button class="btn danger" data-act="sub-end" data-id="${id}">End subscription</button>`:""}<button class="btn ghost" data-act="close-modal">Cancel</button></div></div>`)}
+VIEWS["a-talent"]=()=>{const list=Object.values(S.talentRequests).sort((a,b)=>String(b.createdAt).localeCompare(a.createdAt));const ST=["new","shortlisting","shared","interviewing","placed","closed"];
+  return`<div class="section-h"><div><h1 style="font-size:32px">Partner talent requests</h1><p class="muted">Shortlist members by DSN ID and share them with the partner. Mark requests as placed to count them in impact.</p></div></div>
+  ${list.length?`<div class="stack">${list.map(t=>`<div class="card stack" style="gap:10px"><div class="row between"><div><h3>${esc(t.company)}: ${esc(t.roleNeeded)} · ${esc(t.level||"Any level")} × ${esc(t.count)}</h3><div class="small muted">${esc(t.engagement)} · ${esc(t.workMode||"")} · ${esc(t.duration||"")} · ${esc(t.budget||"no budget given")} · <span class="mono">${esc(t.id)}</span> · ${fmtD(t.createdAt)}</div></div><select data-act="tr-status" data-id="${t.id}" aria-label="Status">${ST.map(s=>`<option value="${s}" ${s===t.status?"selected":""}>${s[0].toUpperCase()+s.slice(1)}</option>`).join("")}</select></div>
+   <p class="small">${esc(t.description)}</p>${(t.specific||[]).length?`<div class="small">Asked for: ${t.specific.map(i=>`<span class="mono">${esc(i)}</span>`).join(", ")}</div>`:""}
+   <div class="fgrid">${field("tr-sl-"+t.id,"Shortlist (DSN IDs, comma separated)",{value:(t.shortlist||[]).join(", ")})}${field("tr-note-"+t.id,"Note to partner",{value:t.adminNote||""})}</div>
+   <div class="row"><button class="btn sm primary" data-act="tr-save" data-id="${t.id}">Save and share</button><button class="btn sm ghost" data-act="tr-suggest" data-id="${t.id}">Suggest matches</button></div><div id="sugg-${t.id}"></div></div>`).join("")}</div>`:`<div class="empty">No partner requests yet.</div>`}`};
+VIEWS["a-impact"]=()=>{
+  const ms=Object.values(S.members);const n=ms.length||1;
+  const base=m=>(m.impact||[])[0]?.status||m.employmentStatus;const cur=m=>m.employmentStatus;
+  const empB=ms.filter(m=>EMPLOYED.has(base(m))).length,empN=ms.filter(m=>EMPLOYED.has(cur(m))).length;
+  const moved=ms.filter(m=>!EMPLOYED.has(base(m))&&EMPLOYED.has(cur(m)));
+  const placed=Object.values(S.talentRequests).filter(t=>t.status==="placed");
+  const reviewed=ms.filter(m=>m.scoreStatus==="reviewed");const avg=reviewed.length?Math.round(reviewed.reduce((a,m)=>a+total(m),0)/reviewed.length):0;
+  const vr=ms.reduce((a,m)=>a+verifiedRoles(m).length,0);
+  const byStatus=EMP.map(s=>[s,ms.filter(m=>base(m)===s).length,ms.filter(m=>cur(m)===s).length]).filter(r=>r[1]||r[2]);
+  const progs={};Object.values(S.applications).forEach(a=>(a.programmes||[]).forEach(p=>progs[p]=(progs[p]||0)+1));
+  const maxS=Math.max(1,...byStatus.flatMap(r=>[r[1],r[2]]));
+  return`<div class="section-h"><div><h1 style="font-size:32px">Impact</h1><p class="muted">Compares each member's status when they applied with their latest update.</p></div><button class="btn" data-act="export-csv">Export CSV</button></div>
+  <div class="grid4" style="margin-bottom:16px"><div class="tile"><div class="k">Members</div><div class="v">${ms.length}</div></div><div class="tile"><div class="k">In work at application</div><div class="v">${Math.round(empB/n*100)}%</div></div><div class="tile"><div class="k">In work now</div><div class="v">${Math.round(empN/n*100)}%</div></div><div class="tile"><div class="k">Moved into work</div><div class="v">${moved.length}</div></div><div class="tile"><div class="k">Verified roles</div><div class="v">${vr}</div></div><div class="tile"><div class="k">Avg rating (reviewed)</div><div class="v">${avg||"—"}</div></div><div class="tile"><div class="k">Partner placements</div><div class="v">${placed.length}</div></div><div class="tile"><div class="k">Partner requests</div><div class="v">${Object.keys(S.talentRequests).length}</div></div></div>
+  <div class="grid2"><div class="card"><h3 style="margin-bottom:12px">Employment status: at application vs now</h3><div class="stack" style="gap:12px">${byStatus.map(([s,a,b])=>`<div><div class="row between small"><b>${esc(s)}</b><span class="mono">${a} → ${b}</span></div><div class="bar" style="margin-top:4px;background:transparent"><i style="width:${a/maxS*100}%;background:var(--muted);opacity:.45"></i></div><div class="bar" style="margin-top:3px;background:transparent"><i style="width:${b/maxS*100}%"></i></div></div>`).join("")}<div class="row small muted" style="gap:14px"><span class="row" style="gap:6px"><span style="width:14px;height:6px;background:var(--muted);opacity:.45;border-radius:3px"></span>At application</span><span class="row" style="gap:6px"><span style="width:14px;height:6px;background:var(--green);border-radius:3px"></span>Now</span></div></div></div>
+  <div class="card"><h3 style="margin-bottom:12px">Members who moved into work</h3>${moved.length?moved.map(m=>`<div class="role-line small"><span><span class="mono">${esc(m.dsnId)}</span> ${esc(m.name)}</span><span>${esc(m.currentTitle||m.employmentStatus)}${m.currentOrg?" · "+esc(m.currentOrg):""}</span></div>`).join(""):`<p class="muted small">None recorded yet.</p>`}<h3 style="margin:18px 0 10px">Programmes named in applications</h3>${Object.entries(progs).sort((a,b)=>b[1]-a[1]).map(([p,c])=>`<div class="role-line small"><span>${esc(p)}</span><span class="mono">${c}</span></div>`).join("")||`<p class="muted small">No data.</p>`}</div></div>`;
+};
+async function exportCSV(){const rows=[["DSN ID","Name","Gender","State","Status at application","Current status","Current title","Current organisation","Rating","Score status","Verified roles","Claimed roles","Premium","Created"]];
+  Object.values(S.members).forEach(m=>rows.push([m.dsnId,m.name,m.gender||"",m.location||"",(m.impact||[])[0]?.status||"",m.employmentStatus||"",m.currentTitle||"",m.currentOrg||"",total(m),m.scoreStatus,verifiedRoles(m).map(r=>r.role+" ("+r.level+")").join("; "),(m.roles||[]).filter(r=>r.status!=="verified").map(r=>r.role).join("; "),m.premium?"Yes":"No",(m.createdAt||"").slice(0,10)]));
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  if(DL){try{await DL.save({filename:"dsn-talent-impact-"+now().slice(0,10)+".csv",data:csv})}catch(e){if(e.code!=="declined")toast("Download didn't start")}}else toast("Downloads aren't available in this view");}
+VIEWS["a-settings"]=()=>{const st=settings();return`<div class="section-h"><div><h1 style="font-size:32px">Settings</h1><p class="muted">These show to members in the verification steps. Update them any time.</p></div></div>
+  <form class="card stack" id="set-form" style="max-width:820px">${field("st-email","Verification email address",{type:"email",value:st.verifyEmail,hint:"Members send their documents here"})}
+  ${field("st-roledocs","Documents for role verification",{rows:5,value:(st.roleDocs||[]).join("\n"),hint:"One per line"})}${field("st-ratedocs","Documents for rating review",{rows:5,value:(st.ratingDocs||[]).join("\n"),hint:"One per line"})}${field("st-note","Process note shown to members",{rows:3,value:st.processNote})}${field("st-prem","Premium note shown to members",{rows:2,value:st.premiumNote})}${field("st-roles","Role list",{rows:8,value:(st.roles||[]).join("\n"),hint:"One role per line. Used in applications, verification and search."})}${field("st-progs","DSN programmes",{rows:6,value:(st.programmes||[]).join("\n"),hint:"One per line. Shown on the application form."})}
+  <div class="row"><button class="btn primary" type="submit">Save settings</button><span class="small muted">Last updated ${fmtDT(st.updatedAt)}</span></div></form>
+  <div class="card stack" style="max-width:820px;margin-top:16px"><h3>Sample data</h3><p class="small muted">Adds example members, reviewers, recruiters and requests so you can try every flow. Existing records are kept.</p><button class="btn" data-act="load-sample" style="align-self:flex-start">Load sample data</button></div>`};
+
+/* ---------- events ---------- */
+document.addEventListener("click",async e=>{
+  const g=e.target.closest("[data-go]");
+  if(g){e.preventDefault();let p={};try{p=g.dataset.p?JSON.parse(g.dataset.p):{}}catch(x){}closeModal();go(g.dataset.go,p);return}
+  const a=e.target.closest("[data-act]");if(!a)return;const act=a.dataset.act,id=a.dataset.id;
+  if(a.tagName==="SELECT"||(a.tagName==="INPUT"&&a.type!=="button"))return;
+  switch(act){
+   case"close-modal":closeModal();break;
+   case"close-modal-bg":if(e.target===a)closeModal();break;
+   case"logout":setSession(null);DRAFT=null;go("home");toast("Logged out");break;
+   case"enter-admin":setSession({kind:"admin",id:"admin"});go("a-home");break;
+   case"back":history.length>1&&R.name!=="home"?go(SESSION?.kind==="member"?"m-home":SESSION?.kind==="reviewer"?"r-queue":SESSION?.kind==="admin"?"a-members":"directory"):go("home");break;
+   case"copy":{const t=a.dataset.text;try{await navigator.clipboard.writeText(t);toast("Copied")}catch(x){const c=a.previousElementSibling;const rg=document.createRange();rg.selectNodeContents(c);const s=getSelection();s.removeAllRanges();s.addRange(rg);toast("Selected. Press Ctrl+C to copy")}break}
+   case"show-rubric":modal(`<div class="stack"><div class="row between"><h2>DSN Rating rubric</h2><button class="btn sm ghost" data-act="close-modal">Close</button></div><p class="small muted">Five categories × 20 points. New profiles start at 5 per category until reviewed.</p>${rubricHTML()}</div>`,{wide:true});break;
+   case"tab":UI.tab[a.dataset.tab]=a.dataset.val;render();break;
+   case"login-tab":UI.tab.login=a.dataset.kind;R.p={kind:a.dataset.kind};render();break;
+   case"login-reset":R.p={kind:R.p.kind};render();break;
+   case"login-forgot":R.p={...R.p,step:"forgot"};render();break;
+   case"download-cv":downloadCV(id);break;
+   case"request-talent":if(!isRecruiter()){go("login",{kind:"recruiter"});break}if(id&&!isSubscribed()){go("rc-plan");break}talentRequestModal(id);break;
+   case"req-rating":processModal("rating");break;
+   case"req-role":processModal("role",a.dataset.role);break;
+   case"confirm-process":confirmProcess(a.dataset.kind,a.dataset.role);break;
+   case"add-role":addRoleModal();break;
+   case"update-status":statusModal();break;
+   case"cv-add":DRAFT[a.dataset.sec]=[...(DRAFT[a.dataset.sec]||[]),clone(SECTIONS[a.dataset.sec].blank)];render();break;
+   case"cv-del":DRAFT[a.dataset.sec].splice(+a.dataset.i,1);render();break;
+   case"cv-move":{const arr=DRAFT[a.dataset.sec],i=+a.dataset.i,j=i+ +a.dataset.dir;[arr[i],arr[j]]=[arr[j],arr[i]];render();break}
+   case"cv-discard":DRAFT=null;render();toast("Changes discarded");break;
+   case"cv-save":{const cur=me();const d=clone(DRAFT);const keep=["roles","scores","scoreStatus","reviewedAt","premium","pwHash","salt","impact","employmentStatus","currentTitle","currentOrg","visible","openToWork","email","phone","name","dsnId","createdAt"];keep.forEach(k=>d[k]=cur[k]);d.updatedAt=now();await put("members",cur.dsnId,d);DRAFT=null;toast("CV saved");go("m-home");break}
+   case"rv-interview":rvInterview(id);break;
+   case"rv-submit-role":rvSubmitRole(id);break;
+   case"rv-submit-rating":rvSubmitRating(id);break;
+   case"req-sub":{const r=clone(me());r.subRequested=true;r.subRequestedAt=now();await put("recruiters",r.id,r);toast("Request sent to DSN");break}
+   case"load-sample":await loadSample();break;
+   case"view-app":appModal(id);break;
+   case"approve-app":approveApp(id);break;
+   case"reject-app":rejectApp(id);break;
+   case"new-member":newMemberModal();break;
+   case"admin-member":adminMemberModal(id);break;
+   case"save-override":{const m=clone(S.members[id]);CATS.forEach(c=>{m.scores[c.k]=Math.max(0,Math.min(20,Math.round(+$("#ov-"+c.k).value||0)))});m.scoreStatus=$("#ov-status").value||m.scoreStatus;if(m.scoreStatus==="reviewed"&&!m.reviewedAt)m.reviewedAt=now();(m.adminLog=m.adminLog||[]).push({at:now(),text:"Scores overridden to "+total(m)});await put("members",id,m);closeModal();toast("Scores updated");break}
+   case"reset-pw":{const col=a.dataset.kind;const o=clone(S[col][id]);o.pwHash="";o.salt="";await put(col,id,o);toast("Password cleared. They'll create a new one at next log in.");break}
+   case"toggle-hide":{const m=clone(S.members[id]);m.visible=m.visible===false;await put("members",id,m);closeModal();toast(m.visible?"Shown in directory":"Hidden from directory");break}
+   case"new-reviewer":newReviewerModal();break;
+   case"rv-active":{const r=clone(S.reviewers[id]);r.active=r.active===false;await put("reviewers",id,r);break}
+   case"rc-approve":case"rc-reject":{const r=clone(S.recruiters[id]);r.status=act==="rc-approve"?"approved":"rejected";await put("recruiters",id,r);toast("Recruiter "+r.status);break}
+   case"rc-sub":subModal(id);break;
+   case"sub-save":{const r=clone(S.recruiters[id]);r.subscribed=true;r.subRequested=false;r.subscribedUntil=$("#sub-until").value;await put("recruiters",id,r);closeModal();toast("Subscription active");break}
+   case"sub-end":{const r=clone(S.recruiters[id]);r.subscribed=false;await put("recruiters",id,r);closeModal();toast("Subscription ended");break}
+   case"tr-save":{const t=clone(S.talentRequests[id]);t.shortlist=$("#tr-sl-"+id).value.split(",").map(cleanId).filter(Boolean);const bad=t.shortlist.filter(x=>!S.members[x]);if(bad.length){toast("Unknown DSN ID: "+bad.join(", "));return}t.adminNote=$("#tr-note-"+id).value.trim();if(t.status==="new"&&t.shortlist.length)t.status="shared";await put("talentRequests",id,t);toast("Saved. The partner can see this now.");break}
+   case"tr-suggest":{const t=S.talentRequests[id];const ms=Object.values(S.members).filter(m=>m.visible!==false&&m.openToWork!==false).map(m=>({m,v:(m.roles||[]).some(r=>r.role===t.roleNeeded&&r.status==="verified"),c:(m.roles||[]).some(r=>r.role===t.roleNeeded)})).filter(x=>x.c).sort((a,b)=>(b.v-a.v)||total(b.m)-total(a.m)).slice(0,6);$("#sugg-"+id).innerHTML=ms.length?`<div class="small muted" style="margin-bottom:6px">Members with this role, verified first:</div><div class="chips">${ms.map(x=>`<span class="chip"><span class="mono">${esc(x.m.dsnId)}</span> ${esc(x.m.name)} · ${total(x.m)} ${x.v?"✓":"(claimed)"}</span>`).join("")}</div>`:`<p class="small muted">No members list this role yet.</p>`;break}
+   case"export-csv":exportCSV();break;
+  }
+});
+document.addEventListener("change",async e=>{
+  const a=e.target.closest("[data-act]");if(!a)return;const act=a.dataset.act,id=a.dataset.id;
+  if(act==="toggle-vis"||act==="toggle-otw"){const m=clone(me());if(act==="toggle-vis")m.visible=a.checked;else m.openToWork=a.checked;await put("members",m.dsnId,m);toast("Saved")}
+  if(act==="toggle-premium"){const m=clone(S.members[id]);m.premium=a.checked;await put("members",id,m);toast(m.premium?"Premium on":"Premium off")}
+  if(act==="rv-perm"){const r=clone(S.reviewers[id]);r[a.dataset.f]=a.checked;await put("reviewers",id,r)}
+  if(act==="assign"){const r=clone(S.requests[id]);r.reviewerId=a.value;(r.history=r.history||[]).push({at:now(),by:"admin",text:a.value?"Assigned to "+a.value+".":"Unassigned."});await put("requests",id,r);toast("Assigned")}
+  if(act==="tr-status"){const t=clone(S.talentRequests[id]);t.status=a.value;await put("talentRequests",id,t);toast("Status updated")}
+  if(e.target.name==="rv-dec"){}
+});
+document.addEventListener("input",e=>{if(e.target.id==="mq"){UI.tab.mq=e.target.value;clearTimeout(window.__mq);window.__mq=setTimeout(()=>{render();const i=$("#mq");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},300)}});
+document.addEventListener("submit",async e=>{
+  const f=e.target;e.preventDefault();
+  if(f.id==="apply-form")return submitApply(e);
+  if(f.id==="login-form")return submitLogin(e);
+  if(f.id==="rc-form")return submitRc(e);
+  if(f.id==="tr-form")return submitTR(e);
+  if(f.id==="addrole-form"){const role=$("#ar-role").value,level=$("#ar-level").value;if(!role||!level){toast("Choose a role and level");return}const m=clone(me());if((m.roles||[]).some(r=>r.role===role)){toast("That role is already on your profile");return}(m.roles=m.roles||[]).push({role,level,status:"claimed",note:""});await put("members",m.dsnId,m);closeModal();toast("Role added");return}
+  if(f.id==="status-form"){const m=clone(me());const st=$("#us-emp").value;if(!st){toast("Choose a status");return}m.employmentStatus=st;m.currentTitle=$("#us-title").value.trim();m.currentOrg=$("#us-org").value.trim();(m.impact=m.impact||[]).push({date:now(),status:st,title:m.currentTitle,org:m.currentOrg,source:"Member update"});await put("members",m.dsnId,m);closeModal();toast("Status updated");return}
+  if(f.id==="nm-form"){const v=i=>($("#"+i).value||"").trim();const id=cleanId(v("nm-id"));const err=$("#nm-err");if(!id||!v("nm-name")||!/^\S+@\S+\.\S+$/.test(v("nm-email"))||!v("nm-emp")||!v("nm-role")){err.hidden=false;err.textContent="Fill in every required field.";return}if(S.members[id]){err.hidden=false;err.textContent="A profile with that DSN ID already exists.";return}
+    await put("applications",id,{dsnId:id,name:v("nm-name"),email:v("nm-email"),state:v("nm-state"),employmentStatus:v("nm-emp"),primaryRole:v("nm-role"),otherRoles:[],programmes:[],status:"pending",createdAt:now(),source:"Admin"});await approveApp(id);return}
+  if(f.id==="nr-form"){const name=$("#nr-name").value.trim(),email=$("#nr-email").value.trim();const err=$("#nr-err");if(!name||!/^\S+@\S+\.\S+$/.test(email)){err.hidden=false;err.textContent="Add a name and valid email.";return}let n=1;while(S.reviewers["RV-"+String(n).padStart(3,"0")])n++;const id="RV-"+String(n).padStart(3,"0");await put("reviewers",id,{id,name,email,expertise:$("#nr-exp").value.trim(),canRole:$("#nr-role").checked,canRating:$("#nr-rate").checked,active:true,createdAt:now(),salt:"",pwHash:""});closeModal();toast("Reviewer "+id+" created. They log in with this ID and set a password.");return}
+  if(f.id==="set-form"){const lines=i=>$("#"+i).value.split("\n").map(s=>s.trim()).filter(Boolean);const st={...clone(settings()),verifyEmail:$("#st-email").value.trim(),roleDocs:lines("st-roledocs"),ratingDocs:lines("st-ratedocs"),processNote:$("#st-note").value.trim(),premiumNote:$("#st-prem").value.trim(),roles:lines("st-roles"),programmes:lines("st-progs"),updatedAt:now()};await put("settings","main",st);toast("Settings saved");return}
+});
+function wire(){if(R.name==="directory")bindDir();if(R.name==="m-edit")bindCV()}
+const _render=render;render=function(){_render();wire()};
+(async()=>{render();await initStore();const h=(location.hash||"").slice(1);if(h&&VIEWS[h]&&!/^(talent|cv|r-task)$/.test(h))R={name:h,p:{}};else if(SESSION)R={name:SESSION.kind==="member"?"m-home":SESSION.kind==="reviewer"?"r-queue":SESSION.kind==="admin"?"a-home":"directory",p:{}};render()})();
+</script>
