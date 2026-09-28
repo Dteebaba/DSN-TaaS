@@ -13,16 +13,6 @@
   --body:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
-  --bg:#0E1311;--surface:#151B18;--surface2:#111714;--ink:#E7ECE9;--muted:#9AA6A0;--line:#28312D;--line2:#1E2622;
-  --green:#2FB866;--green-text:#4CCB7E;--green-ink:#06140C;--green-soft:#12291C;--green-line:#1F5334;
-  --red:#FF5A6E;--red-soft:#321517;--blue:#9DA7F0;--blue-soft:#1C2140;--amber:#E6AE45;--amber-soft:#2E2410;
-  --shadow:0 1px 2px rgba(0,0,0,.4);}}
-:root[data-theme="dark"]{color-scheme:dark;
-  --bg:#0E1311;--surface:#151B18;--surface2:#111714;--ink:#E7ECE9;--muted:#9AA6A0;--line:#28312D;--line2:#1E2622;
-  --green:#2FB866;--green-text:#4CCB7E;--green-ink:#06140C;--green-soft:#12291C;--green-line:#1F5334;
-  --red:#FF5A6E;--red-soft:#321517;--blue:#9DA7F0;--blue-soft:#1C2140;--amber:#E6AE45;--amber-soft:#2E2410;
-  --shadow:0 1px 2px rgba(0,0,0,.4);}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0}
 h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.15;text-wrap:balance;margin:0;letter-spacing:-.01em}
@@ -35,6 +25,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .wrap{max-width:1240px;margin:0 auto;padding-inline:20px}
 /* header */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top::after{content:"";display:block;height:3px;background:linear-gradient(90deg,var(--green) 0 60%,var(--red) 60% 80%,var(--blue) 80%)}
 .top .wrap{display:flex;align-items:center;gap:18px;min-height:64px;flex-wrap:wrap;padding-block:8px}
 .brand{display:flex;align-items:center;gap:10px;cursor:pointer;background:none;border:0;padding:0}
 .brand img{height:38px;width:auto;background:#fff;border-radius:6px;padding:2px 4px}
@@ -112,6 +103,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0}
 .tcard:hover{border-color:var(--green-line);transform:translateY(-1px)}
 .tcard .idl{display:flex;justify-content:space-between;gap:10px;align-items:start}
 .tcard .nm{font-weight:700;font-size:15.5px}
+.tcard .badge{white-space:normal}
 .tcard .hd{font-size:13px;color:var(--muted);min-height:2.6em}
 /* forms */
 label.f{display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:600}
@@ -187,6 +179,43 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .rubric b{font-family:var(--mono);color:var(--ink);font-weight:600}
 .scorein{display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:10px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line2)}
 .foot{border-top:1px solid var(--line);padding-block:22px;color:var(--muted);font-size:13px}
+
+/* welcome page */
+main.home{padding-block:0 0}
+.welcome{position:relative;overflow:hidden;background:#FEFEFE;border-bottom:1px solid var(--line)}
+.welcome canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.welcome .inner{position:relative;max-width:1240px;margin:0 auto;padding:clamp(56px,10vw,120px) 20px clamp(64px,10vw,128px);display:flex;flex-direction:column;align-items:flex-start;gap:22px;pointer-events:none}
+.welcome .inner>*{pointer-events:auto}
+.welcome .kicker{display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);background:rgba(254,254,254,.85);padding:6px 12px 6px 6px;border-radius:999px;border:1px solid var(--line)}
+.welcome .kicker img{height:22px;border-radius:4px}
+.welcome h1{font-size:clamp(40px,7vw,84px);line-height:1.02;letter-spacing:-.03em;max-width:13ch}
+.welcome h1 .g{color:var(--green)}
+.welcome h1 .u{background:linear-gradient(transparent 72%,rgba(222,7,40,.22) 72%)}
+.welcome .tag{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:44ch;background:rgba(254,254,254,.7)}
+.welcome .cta{display:flex;gap:12px;flex-wrap:wrap}
+.welcome .cta .btn{padding:13px 22px;font-size:15.5px;border-radius:11px}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.rise{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+.rise.d1{animation-delay:.08s}.rise.d2{animation-delay:.2s}.rise.d3{animation-delay:.34s}.rise.d4{animation-delay:.48s}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.doors{max-width:1240px;margin:-44px auto 0;padding-inline:20px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;position:relative;z-index:2}
+.door{display:flex;flex-direction:column;gap:10px;text-align:left;padding:22px;border-radius:14px;border:0;cursor:pointer;color:#fff;min-height:150px;box-shadow:0 10px 30px rgba(20,40,30,.14);transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+.door:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(20,40,30,.2)}
+.door.g{background:var(--green)}.door.b{background:var(--blue)}.door.r{background:var(--red)}
+.door b{font-family:var(--display);font-size:22px}
+.door span{opacity:.92;font-size:14.5px}
+.door .arr{margin-top:auto;font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+.door .arr i{display:inline-block;transition:transform .2s;font-style:normal}
+.door:hover .arr i{transform:translateX(5px)}
+.door::after{content:"";position:absolute;right:-30px;bottom:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12)}
+@media (max-width:760px){.doors{grid-template-columns:1fr;margin-top:-28px}}
+.numbers{max-width:1240px;margin:56px auto 0;padding-inline:20px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.numbers div{border-top:3px solid var(--green);padding-top:12px}
+.numbers div:nth-child(2){border-color:var(--red)}.numbers div:nth-child(3){border-color:var(--blue)}
+.numbers b{display:block;font-family:var(--display);font-size:clamp(36px,5vw,56px);font-variant-numeric:tabular-nums;line-height:1}
+.numbers span{color:var(--muted);font-weight:600}
+.meet{max-width:1240px;margin:64px auto 0;padding:0 20px 72px}
+@media (prefers-reduced-motion:reduce){.rise{animation:none}.door{transition:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -294,7 +323,7 @@ function navItems(){
   if(k==="reviewer")return[["r-queue","Review queue"],["r-done","Completed"],["r-rubric","Rubrics"]];
   if(k==="recruiter")return[["directory","Find talent"],["rc-requests","Talent requests"],["rc-plan","Subscription"]];
   if(k==="admin")return[["a-home","Overview"],["a-apps","Applications"],["a-members","Members"],["a-verify","Verifications"],["a-reviewers","Reviewers"],["a-recruiters","Recruiters"],["a-talent","Partner requests"],["a-impact","Impact"],["a-settings","Settings"]];
-  return[["home","Home"],["directory","Talent directory"],["apply","Apply as a member"],["rc-register","For recruiters"]];
+  return[["home","Home"],["directory","Find talent"],["apply","Join"],["rc-register","Partners"]];
 }
 function header(){
   const u=me();const k=SESSION?.kind;
@@ -317,7 +346,7 @@ function render(){
   for(const[k,re]of Object.entries(guard)){if(re.test(R.name)&&!(SESSION?.kind===k&&acctOf(SESSION))){R={name:"login",p:{kind:k==="admin"?"member":k}};if(k==="admin"){R={name:"home",p:{}}}}}
   let body="";
   try{body=(VIEWS[R.name]||VIEWS.home)(R.p)}catch(e){console.error(e);body=`<div class="card"><h2>Something went wrong</h2><p class="muted">${esc(e.message)}</p></div>`}
-  app.innerHTML=header()+`<main><div class="wrap">${body}</div></main>`+footer();
+  app.innerHTML=header()+(R.name==="home"?`<main class="home">${body}</main>`:`<main><div class="wrap">${body}</div></main>`)+footer();
   afterRender();
 }
 let afterHooks=[];
@@ -368,23 +397,34 @@ VIEWS.home=()=>{
   const vr=ms.reduce((a,m)=>a+verifiedRoles(m).length,0);
   const partners=Object.values(S.recruiters).filter(r=>r.status==="approved").length;
   const featured=ms.slice().sort((a,b)=>(verifiedRoles(b).length>0)-(verifiedRoles(a).length>0)||total(b)-total(a)).slice(0,3);
-  return`<section class="hero"><div><div class="flag"><i></i><i></i><i></i></div><h1>Verified data and AI talent from the <em>DSN community</em>.</h1>
-  <p class="lede">Every member has one DSN ID, one standard CV and a DSN Rating out of 100. Roles are marked Verified only after a DSN peer reviewer checks the evidence. Partners request talent through DSN, never by contacting members directly.</p>
-  <div class="row" style="margin-top:22px"><button class="btn primary" data-go="directory">Browse talent</button><button class="btn" data-go="apply">Apply as a DSN member</button><button class="btn ghost" data-go="rc-register">Recruiter access →</button></div></div>
-  <div class="card stack"><div class="eyebrow">How the DSN Rating works</div><p class="small muted">Five categories, 20 points each. New profiles start at 5 per category (25/100) until a reviewer grades them.</p>
-   <div class="bars">${CATS.map((c,i)=>{const v=[16,14,12,15,13][i];return`<div class="bar-row"><span class="lbl">${esc(c.label)}</span><span class="val">${v}/20</span><div class="bar"><i style="width:${v*5}%"></i></div></div>`}).join("")}</div>
-   <div class="row between"><span class="small muted">Example profile</span><span class="score-big"><b style="font-size:32px">70</b><span>/ 100</span></span></div></div></section>
-  <section class="grid3" style="margin-bottom:28px">
-   <div class="tile"><div class="k">Members on the platform</div><div class="v">${ms.length}</div></div>
-   <div class="tile"><div class="k">Verified roles</div><div class="v">${vr}</div></div>
-   <div class="tile"><div class="k">Hiring partners</div><div class="v">${partners}</div></div></section>
-  <section class="grid3 who3" style="margin-bottom:32px">
-   <div class="card"><div class="eyebrow">Members</div><h3>Get rated and verified</h3><ul><li>Apply with your DSN ID. DSN creates your profile.</li><li>Log in with your DSN ID and set a password.</li><li>Fill in one standard CV, then submit it for review.</li><li>Request verification for each role you claim.</li></ul></div>
-   <div class="card"><div class="eyebrow">Peer reviewers</div><h3>Grade against a rubric</h3><ul><li>Verify roles: approve, reject, or assign a different role or level.</li><li>Rate profiles in five categories out of 20.</li><li>Request an interview when evidence is unclear.</li></ul></div>
-   <div class="card"><div class="eyebrow">Recruiters</div><h3>Find talent through DSN</h3><ul><li>Anyone can see DSN IDs, roles and ratings.</li><li>Subscribers see names and full CVs, and can download them.</li><li>Request talent; DSN shortlists and connects you.</li></ul></div></section>
-  <div class="section-h"><h2>Top-rated talent</h2><button class="btn sm" data-go="directory">See all</button></div>
-  <div class="tgrid">${featured.map(talentCard).join("")}</div>`;
+  after(startWelcome);
+  return`<section class="welcome"><canvas id="net" aria-hidden="true"></canvas><div class="inner">
+   <span class="kicker rise"><img src="${LOGO}" alt="">Data Science Nigeria</span>
+   <h1 class="rise d1">Welcome to the <span class="g">DSN</span> <span class="u">Talent Platform</span></h1>
+   <p class="tag rise d2">Verified data and AI talent from the Data Science Nigeria community.</p>
+   <div class="cta rise d3"><button class="btn primary" data-go="directory">Find talent</button><button class="btn blue" data-go="apply">Join as a member</button><button class="btn" data-go="login">Log in</button></div></div></section>
+  <div class="doors rise d4">
+   <button class="door g" data-go="apply"><b>Members</b><span>Build your profile and get verified.</span><span class="arr">Apply <i>→</i></span></button>
+   <button class="door b" data-go="login" data-p='{"kind":"reviewer"}'><b>Reviewers</b><span>Rate and verify DSN talent.</span><span class="arr">Reviewer log in <i>→</i></span></button>
+   <button class="door r" data-go="rc-register"><b>Partners</b><span>Hire through DSN.</span><span class="arr">Get access <i>→</i></span></button></div>
+  <div class="numbers"><div><b data-count="${ms.length}">${ms.length}</b><span>Members</span></div><div><b data-count="${vr}">${vr}</b><span>Verified roles</span></div><div><b data-count="${partners}">${partners}</b><span>Hiring partners</span></div></div>
+  ${featured.length?`<section class="meet"><div class="section-h"><h2>Meet the talent</h2><button class="btn sm" data-go="directory">See all</button></div><div class="tgrid">${featured.map(talentCard).join("")}</div></section>`:`<div style="height:64px"></div>`}`;
 };
+let netRAF=0;
+function startWelcome(){
+  cancelAnimationFrame(netRAF);
+  const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelectorAll("[data-count]").forEach(el=>{const n=+el.dataset.count;if(reduce||!n)return;const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/1200);el.textContent=Math.round(n*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step)};el.textContent="0";requestAnimationFrame(step)});
+  const c=$("#net");if(!c)return;const ctx=c.getContext("2d");const COLS=["#0F9B4A","#0F9B4A","#0F9B4A","#DE0728","#212E81","#212E81"];
+  let W=0,H=0,dpr=Math.min(2,window.devicePixelRatio||1),pts=[];
+  const size=()=>{const r=c.getBoundingClientRect();W=r.width;H=r.height;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const n=Math.round(Math.min(90,W*H/14000));pts=Array.from({length:n},()=>({x:W*.35+Math.random()*W*.65,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:2+Math.random()*3,c:COLS[Math.floor(Math.random()*COLS.length)],sq:Math.random()<.45}))};
+  size();window.onresize=()=>{if($("#net"))size()};
+  const draw=()=>{ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++){const p=pts[i];for(let j=i+1;j<pts.length;j++){const q=pts[j];const dx=p.x-q.x,dy=p.y-q.y,d=dx*dx+dy*dy;if(d<13000){ctx.strokeStyle="rgba(15,155,74,"+(0.16*(1-d/13000))+")";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke()}}}
+    pts.forEach(p=>{const fade=Math.min(1,Math.max(0,(p.x-W*.25)/(W*.2)));ctx.globalAlpha=.25+.6*fade;ctx.fillStyle=p.c;if(p.sq)ctx.fillRect(p.x-p.r,p.y-p.r,p.r*2,p.r*2);else{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fill()}ctx.globalAlpha=1});};
+  const tick=()=>{if(!document.body.contains(c))return;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<W*.2||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1});draw();netRAF=requestAnimationFrame(tick)};
+  if(reduce)draw();else tick();
+}
 
 /* ---------- directory ---------- */
 VIEWS.directory=()=>{
