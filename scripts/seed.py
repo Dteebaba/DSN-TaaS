@@ -91,7 +91,7 @@ add(member(4,"DSN-2025-0033","Chinedu Eze","Male","Enugu",
  [{"school":"University of Nigeria, Nsukka","degree":"B.Sc.","field":"Computer Science","year":"2021"}],
  [{"name":"Google Cloud Professional Data Engineer","issuer":"Google Cloud","year":"2025","link":""}],
  [],
- [{"role":"Data Engineer","level":"Mid-Level","status":"pending","note":""},{"role":"Analytics Engineer","level":"Junior","status":"claimed","note":""}],
+ [{"role":"Data Engineer","level":"Mid-Level","status":"pending","note":""},{"role":"Analytics Engineer","level":"Junior","status":"pending","note":""}],
  {"tech":5,"projects":5,"experience":5,"education":5,"soft":5},"pending",False,"Employed full-time","Data Engineer","Paylink Africa","2026-08-12T09:00:00Z"))
 
 add(member(5,"DSN-2024-0761","Funmilayo Adeyemi","Female","Lagos",
@@ -147,7 +147,7 @@ recruiters = {
 }
 
 requests = {
- "RQ-role-0001": {"id":"RQ-role-0001","type":"role","memberId":"DSN-2025-0033","role":"Data Engineer","level":"Mid-Level","status":"submitted","createdAt":"2026-09-18T10:00:00Z","reviewerId":"","history":[{"at":"2026-09-18T10:00:00Z","by":"member","text":"Verification requested; documents emailed."}]},
+ "RQ-role-0001": {"id":"RQ-role-0001","type":"role","memberId":"DSN-2025-0033","roles":[{"role":"Data Engineer","level":"Mid-Level"},{"role":"Analytics Engineer","level":"Junior"}],"status":"submitted","createdAt":"2026-09-18T10:00:00Z","reviewerId":"","history":[{"at":"2026-09-18T10:00:00Z","by":"member","text":"Verification requested for Data Engineer (Mid-Level), Analytics Engineer (Junior); documents emailed."}]},
  "RQ-role-0002": {"id":"RQ-role-0002","type":"role","memberId":"DSN-2024-0187","role":"BI Analyst / BI Developer","level":"Junior","status":"interview","createdAt":"2026-09-10T10:00:00Z","reviewerId":"RV-003",
    "interview":{"when":"2026-10-02T14:00","link":"https://meet.google.com/abc-defg-hij","note":"Please be ready to walk through one dashboard you built end to end."},
    "history":[{"at":"2026-09-10T10:00:00Z","by":"member","text":"Verification requested; documents emailed."},{"at":"2026-09-15T12:00:00Z","by":"RV-003","text":"Interview requested for 2 Oct 2026, 14:00."}]},

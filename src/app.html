@@ -70,8 +70,33 @@ main{padding-block:28px 60px;min-height:70vh}
 hr{border:0;border-top:1px solid var(--line);margin:4px 0}
 /* badges */
 .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:12.5px;font-weight:600;border:1px solid transparent;white-space:nowrap}
-.badge.verified{background:var(--green-soft);color:var(--green-text);border-color:var(--green-line)}
-.badge.claimed{background:transparent;color:var(--muted);border:1px dashed var(--muted)}
+.badge.verified{background:var(--green);color:#fff;border-color:var(--green)}
+.badge.verified .tick circle{fill:#fff}.badge.verified .tick path{stroke:var(--green)}
+.badge.claimed{background:#fff;color:var(--muted);border:1.5px dashed #9AA3AA;font-weight:500}
+.rgroup{display:flex;flex-direction:column;gap:8px}
+.rgroup-h{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+.rgroup-h.v{color:var(--green-text)}.rgroup-h.c{color:var(--muted)}
+.vrole,.crole{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;flex-wrap:wrap}
+.vrole{background:var(--green);color:#fff}
+.vrole .lv{background:rgba(255,255,255,.18);border-radius:6px;padding:2px 8px;font-weight:700;font-size:13px}
+.vrole .rn{display:flex;align-items:center;gap:8px;font-weight:700}
+.vrole .rn .tick circle{fill:#fff}.vrole .rn .tick path{stroke:var(--green)}
+.vrole .dt{font-size:12px;opacity:.85}
+.crole{background:#fff;border:1.5px dashed #9AA3AA;color:var(--muted)}
+.crole .rn{font-weight:600;color:var(--ink)}
+.crole .lv{font-size:12.5px}
+.crole.pend{border-color:var(--amber);background:var(--amber-soft)}
+.crole.rej .lv{color:var(--red)}
+.decision{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--surface2)}
+.decision .fgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:640px){.decision .fgrid{grid-template-columns:1fr}}
+.pick{display:grid;grid-template-columns:auto minmax(0,1fr) 170px;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.pick.dis{opacity:.55}
+@media (max-width:560px){.pick{grid-template-columns:auto 1fr}.pick select{grid-column:1/-1}}
+.manual-lv{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:13.5px}
+.manual-lv b{font-weight:700}
+.manual-lv .on{background:var(--green-soft);border-radius:6px;padding:2px 6px;margin:-2px -6px}
+.tcard .roles{display:flex;flex-wrap:wrap;gap:6px}
 .badge.pending{background:var(--amber-soft);color:var(--amber)}
 .badge.rejected{background:var(--red-soft);color:var(--red)}
 .badge.blue{background:var(--blue-soft);color:var(--blue)}
@@ -138,8 +163,8 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .note.warn{background:var(--amber-soft)}
 .note.ok{background:var(--green-soft)}
 .steps{counter-reset:s;display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
-.steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px}
-.steps li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--green);color:var(--green-ink);display:grid;place-items:center;font-weight:700;font-size:13px}
+.steps>li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px}
+.steps>li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--green);color:var(--green-ink);display:grid;place-items:center;font-weight:700;font-size:13px}
 .copyrow{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 6px 6px 12px;background:var(--surface)}
 .copyrow code{flex:1;font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
 .timeline{display:flex;flex-direction:column;gap:0}
@@ -233,6 +258,25 @@ const CATS=[
  {k:"soft",label:"Professional & Soft Skills",short:"Soft skills",bands:[["0–5","Not yet assessed."],["6–10","Communicates adequately; needs support to structure work."],["11–15","Clear communicator, reliable, collaborates well and owns tasks."],["16–20","Client-ready: structured thinking, leads others and presents confidently to stakeholders."]]}
 ];
 const LEVELS=["Junior","Mid-Level","Senior","Lead / Expert"];
+const GENERIC_LEVELS={"Junior":"Delivers well-defined tasks with guidance. Usually 0–2 years of relevant practice.","Mid-Level":"Delivers standard work independently from start to finish. Usually 2–5 years.","Senior":"Owns complex, unclear problems, chooses the approach and mentors others. Usually 5+ years.","Lead / Expert":"Sets direction for a team or practice, with recognised expertise and clear impact across an organisation."};
+const DEFAULT_MANUAL={
+ "Data Analyst":{summary:"Turns data into answers and reports that help teams decide.",levels:{"Junior":"Cleans data, writes basic SQL and builds simple charts and reports from clear instructions.","Mid-Level":"Owns recurring reports and dashboards, writes solid SQL, frames questions with stakeholders.","Senior":"Leads analyses that change decisions, sets reporting standards, reviews others' work.","Lead / Expert":"Runs an analytics function, sets metrics strategy and advises leadership."}},
+ "BI Analyst / BI Developer":{summary:"Builds and maintains dashboards, semantic models and reporting systems.",levels:{"Junior":"Builds dashboards in Power BI/Tableau from existing datasets.","Mid-Level":"Designs data models and measures, automates refreshes, manages workspace access.","Senior":"Owns the BI platform design, performance and governance across departments.","Lead / Expert":"Sets BI strategy and standards for the organisation and leads a BI team."}},
+ "Business Analyst":{summary:"Connects business needs to data and systems through requirements and process analysis.",levels:{"Junior":"Documents requirements and processes with guidance; supports testing.","Mid-Level":"Runs requirement sessions, maps processes, writes user stories and acceptance criteria.","Senior":"Shapes solutions for complex programmes and manages senior stakeholders.","Lead / Expert":"Leads business analysis practice and portfolio-level change."}},
+ "Data Scientist":{summary:"Builds statistical and machine learning models to predict, explain and optimise.",levels:{"Junior":"Trains standard models on prepared data and reports metrics correctly.","Mid-Level":"Frames problems, engineers features, validates models properly and explains results to business users.","Senior":"Owns models in production with measurable impact; chooses methods for hard problems; mentors.","Lead / Expert":"Sets data science direction, leads teams and delivers organisation-wide outcomes."}},
+ "Data Engineer":{summary:"Builds reliable pipelines and storage that move and prepare data.",levels:{"Junior":"Writes and maintains simple ETL jobs and SQL transformations.","Mid-Level":"Designs batch/stream pipelines, orchestration and data quality checks.","Senior":"Architects data platforms for scale, cost and reliability; reviews designs.","Lead / Expert":"Owns data platform strategy and leads engineering teams."}},
+ "Analytics Engineer":{summary:"Models clean, tested, documented data for analysis (e.g. dbt).",levels:{"Junior":"Builds simple models and tests from specs.","Mid-Level":"Designs dimensional models, testing and documentation for a domain.","Senior":"Owns the modelling layer and metric definitions across domains.","Lead / Expert":"Sets modelling standards and leads the analytics engineering function."}},
+ "Machine Learning Engineer":{summary:"Puts ML models into reliable production systems.",levels:{"Junior":"Packages and serves models with guidance; writes tests.","Mid-Level":"Builds training and serving pipelines, monitors models in production.","Senior":"Designs ML systems for scale and latency; leads technical decisions.","Lead / Expert":"Sets ML engineering architecture and leads teams."}},
+ "AI Engineer":{summary:"Builds applications powered by AI models and APIs.",levels:{"Junior":"Integrates AI APIs into simple features.","Mid-Level":"Builds complete AI features with evaluation, guardrails and monitoring.","Senior":"Designs AI systems end to end and owns quality, cost and safety.","Lead / Expert":"Sets AI product architecture and leads engineering teams."}},
+ "Generative AI Engineer":{summary:"Builds with large language and generative models: prompting, retrieval, fine-tuning.",levels:{"Junior":"Builds prompt-based prototypes and basic retrieval (RAG).","Mid-Level":"Ships RAG/agent features with evaluation sets and safety checks.","Senior":"Fine-tunes or adapts models, designs evaluation and deployment at scale.","Lead / Expert":"Leads GenAI strategy and teams; recognised expertise."}},
+ "MLOps Engineer":{summary:"Runs the infrastructure and processes that keep ML reliable.",levels:{"Junior":"Maintains CI/CD and model registries with guidance.","Mid-Level":"Builds automated training, deployment and monitoring pipelines.","Senior":"Designs the MLOps platform, reliability and governance.","Lead / Expert":"Sets MLOps strategy across teams."}},
+ "AI Product Specialist / Manager":{summary:"Defines AI products people need and guides them to launch.",levels:{"Junior":"Supports discovery, writes specs and tracks delivery.","Mid-Level":"Owns an AI feature from discovery to launch with clear success metrics.","Senior":"Owns an AI product line, roadmap and responsible-AI decisions.","Lead / Expert":"Sets AI product strategy for the organisation."}},
+ "Data / AI Solutions Architect":{summary:"Designs end-to-end data and AI solutions for clients or organisations.",levels:{"Junior":"Documents architectures and supports solution design.","Mid-Level":"Designs solutions for single projects and estimates effort and cost.","Senior":"Designs complex multi-system solutions and leads client technical engagements.","Lead / Expert":"Sets reference architectures and advises executives."}},
+ "AI Researcher":{summary:"Advances methods through experiments and publications.",levels:{"Junior":"Reproduces papers and runs experiments under supervision.","Mid-Level":"Designs original experiments and co-authors papers.","Senior":"Leads research agendas with first-author work at recognised venues.","Lead / Expert":"Leads a research group with sustained, cited contributions."}},
+ "Data Annotator / AI Trainer":{summary:"Labels data and evaluates model outputs to train AI.",levels:{"Junior":"Labels data accurately following guidelines.","Mid-Level":"Handles complex tasks, reviews others' labels and flags guideline gaps.","Senior":"Writes guidelines, runs quality assurance and trains annotators.","Lead / Expert":"Leads annotation programmes and data quality strategy."}},
+ "AI Educator / Trainer":{summary:"Teaches data and AI skills to learners.",levels:{"Junior":"Assists facilitators and supports learners in labs.","Mid-Level":"Delivers full sessions and courses with good learner feedback.","Senior":"Designs curricula and trains other facilitators.","Lead / Expert":"Leads education programmes at scale with measured learner outcomes."}}
+};
+
 const EMP=["Employed full-time","Employed part-time","Self-employed / Freelance","Internship","NYSC","Student","Unemployed – seeking work","Not seeking work"];
 const EMPLOYED=new Set(["Employed full-time","Employed part-time","Self-employed / Freelance","Internship"]);
 const COLS=["members","applications","recruiters","reviewers","requests","talentRequests","views","settings"];
@@ -262,6 +306,19 @@ function initials(name){return String(name||"?").split(/\s+/).filter(Boolean).sl
 function total(m){const s=m?.scores||{};return CATS.reduce((a,c)=>a+(+s[c.k]||0),0)}
 function verifiedRoles(m){return(m.roles||[]).filter(r=>r.status==="verified")}
 function levelRank(l){return LEVELS.indexOf(l)}
+const reqRoles=r=>(r&&r.roles&&r.roles.length)?r.roles:(r&&r.role?[{role:r.role,level:r.level}]:[]);
+const reqRolesText=r=>reqRoles(r).map(x=>x.role+" ("+x.level+")").join(", ");
+function outcomeText(r){if(r.type==="rating")return(r.outcome?.total??"")+"/100";const d=r.outcome?.decisions;if(d)return d.map(x=>x.verified?`${x.finalRole} · ${x.finalLevel} ✓`:`${x.role} ✗`).join("; ")+((r.outcome.added||[]).length?"; added "+r.outcome.added.map(a=>a.role+" · "+a.level).join(", "):"");if(r.status==="rejected")return"Not verified";return(r.outcome?.role||"")+" · "+(r.outcome?.level||"")}
+function roleManual(){const m=settings().roleManual;return m&&Object.keys(m).length?m:DEFAULT_MANUAL}
+function manualFor(role){return roleManual()[role]||{summary:"",levels:{}}}
+function levelDesc(role,level){return(manualFor(role).levels||{})[level]||GENERIC_LEVELS[level]||""}
+function openRoleReq(memberId,role){return Object.values(S.requests).find(q=>q.memberId===memberId&&q.type==="role"&&(q.status==="submitted"||q.status==="interview")&&reqRoles(q).some(x=>x.role===role))}
+function rolesBlock(m,{dates=true,empty="No roles yet."}={}){
+  const vr=verifiedRoles(m).sort((a,b)=>levelRank(b.level)-levelRank(a.level));const cr=(m.roles||[]).filter(r=>r.status!=="verified");
+  if(!vr.length&&!cr.length)return`<p class="muted">${empty}</p>`;
+  return`<div class="rgroup">${vr.length?`<div class="rgroup-h v">${ICON.check} DSN verified</div>${vr.map(r=>`<div class="vrole"><span class="rn">${ICON.check}${esc(r.role)}</span><span class="row" style="gap:8px"><span class="lv">${esc(r.level)}</span>${dates?`<span class="dt">${fmtD(r.verifiedAt)}</span>`:""}</span></div>`).join("")}`:""}
+  ${cr.length?`<div class="rgroup-h c">Claimed · not verified</div>${cr.map(r=>`<div class="crole ${r.status==="pending"?"pend":r.status==="rejected"?"rej":""}"><span class="rn">${esc(r.role)}</span><span class="lv">${r.status==="pending"?"Verification in progress":r.status==="rejected"?"Not verified by reviewer":"Self-declared"} · ${esc(r.level||"")}</span></div>`).join("")}`:""}</div>`;
+}
 function topRole(m){const v=verifiedRoles(m).sort((a,b)=>levelRank(b.level)-levelRank(a.level));if(v.length)return v[0];return(m.roles||[])[0]||null}
 function completeness(m){let p=0;if(m.headline)p+=10;if((m.summary||"").length>40)p+=15;if((m.skills||[]).length>=3)p+=10;if((m.experience||[]).length)p+=20;if((m.projects||[]).length)p+=20;if((m.education||[]).length)p+=15;if((m.certifications||[]).length)p+=10;return p}
 const settings=()=>S.settings.main||{};
@@ -320,9 +377,9 @@ document.addEventListener("focusout",()=>{if(UI.pendingRender){setTimeout(()=>{c
 function navItems(){
   const k=SESSION?.kind;
   if(k==="member")return[["m-home","Dashboard"],["m-edit","Edit my CV"],["cv","My CV",{id:SESSION.id}],["directory","Talent directory"]];
-  if(k==="reviewer")return[["r-queue","Review queue"],["r-done","Completed"],["r-rubric","Rubrics"]];
+  if(k==="reviewer")return[["r-queue","Review queue"],["r-done","Completed"],["roles","Role manual"],["r-rubric","Rating rubric"]];
   if(k==="recruiter")return[["directory","Find talent"],["rc-requests","Talent requests"],["rc-plan","Subscription"]];
-  if(k==="admin")return[["a-home","Overview"],["a-apps","Applications"],["a-members","Members"],["a-verify","Verifications"],["a-reviewers","Reviewers"],["a-recruiters","Recruiters"],["a-talent","Partner requests"],["a-impact","Impact"],["a-settings","Settings"]];
+  if(k==="admin")return[["a-home","Overview"],["a-apps","Applications"],["a-members","Members"],["a-verify","Verifications"],["a-reviewers","Reviewers"],["a-recruiters","Recruiters"],["a-talent","Partner requests"],["a-impact","Impact"],["a-roles","Role manual"],["a-settings","Settings"]];
   return[["home","Home"],["directory","Find talent"],["apply","Join"],["rc-register","Partners"]];
 }
 function header(){
@@ -358,7 +415,7 @@ function roleBadge(r,{short=false}={}){
   if(!r)return`<span class="badge grey">No role yet</span>`;
   if(r.status==="verified")return`<span class="badge verified">${ICON.check}${esc(r.role)} · ${esc(r.level)}</span>`;
   if(r.status==="pending")return`<span class="badge pending">${esc(r.role)}${short?"":" · verification in progress"}</span>`;
-  return`<span class="badge claimed">${esc(r.role)} · Claimed, not verified</span>`;
+  return`<span class="badge claimed">${esc(r.role)} · claimed</span>`;
 }
 function statusBadge(st){const m={submitted:["pending","Awaiting reviewer"],interview:["blue","Interview requested"],completed:["verified","Completed"],rejected:["rejected","Not verified"],pending:["pending","Pending"],approved:["verified","Approved"],new:["pending","New"],shortlisting:["blue","Shortlisting"],shared:["blue","Profiles shared"],interviewing:["blue","Interviewing"],placed:["verified","Placed"],closed:["grey","Closed"]};const[c,l]=m[st]||["grey",st];return`<span class="badge ${c}">${esc(l)}</span>`}
 function scoreStatusText(m){if(m.scoreStatus==="reviewed")return`Reviewed by DSN on ${fmtD(m.reviewedAt)}.`;if(m.scoreStatus==="pending")return"Review in progress. Showing starting scores.";return"Starting scores (5 per category) until the profile is reviewed."}
@@ -376,7 +433,7 @@ function talentCard(m){
   return`<button class="tcard" data-go="talent" data-p='${esc(JSON.stringify({id:m.dsnId}))}'>
    <div class="idl"><div class="row" style="gap:10px;flex-wrap:nowrap"><span class="av ${full?"":"masked"}">${full?esc(initials(m.name)):"•"}</span><div><div class="nm">${esc(displayName(m))}</div><div class="mono small muted">${esc(m.dsnId)}</div></div></div>${ring(m)}</div>
    <div class="hd">${esc(m.headline||"")}</div>
-   <div>${roleBadge(tr,{short:true})}${verifiedRoles(m).length>1?` <span class="small muted">+${verifiedRoles(m).length-1} verified</span>`:""}</div>
+   <div class="roles">${(()=>{const v=verifiedRoles(m).sort((a,b)=>levelRank(b.level)-levelRank(a.level));const c=(m.roles||[]).filter(r=>r.status!=="verified");const shown=[...v.slice(0,2).map(r=>roleBadge(r)),...(v.length?[]:c.slice(0,1).map(r=>roleBadge({...r,status:"claimed"})))];const more=v.length>2?v.length-2:0;const mc=v.length?c.length:Math.max(0,c.length-1);return shown.join("")+(more?`<span class="small muted">+${more} verified</span>`:"")+(mc?`<span class="small muted">+${mc} claimed</span>`:"")||roleBadge(null)})()}</div>
    ${miniBars(m)}
   </button>`;
 }
@@ -468,10 +525,7 @@ VIEWS.talent=({id})=>{
   <div class="split"><div class="stack">
    <div class="card"><div class="row" style="gap:16px;align-items:flex-start;flex-wrap:nowrap"><span class="av lg ${full?"":"masked"}">${full?esc(initials(m.name)):"•"}</span><div class="stack" style="gap:6px;flex:1;min-width:0"><h2>${esc(displayName(m))}</h2><div class="row small" style="gap:8px"><span class="mono">${esc(m.dsnId)}</span>${m.location?`<span class="muted">· ${esc(m.location)}</span>`:""}${m.openToWork!==false?`<span class="badge blue">Open to opportunities</span>`:""}</div><p class="muted">${esc(m.headline||"")}</p></div></div>
     ${actions?`<div class="row" style="margin-top:16px">${actions}</div>`:""}</div>
-   <div class="card"><h3 style="margin-bottom:6px">Roles</h3><p class="small muted" style="margin-bottom:6px">Verified roles were checked by a DSN peer reviewer. Claimed roles are the member's own statement.</p>
-    ${vr.map(r=>`<div class="role-line"><span class="role-name">${esc(r.role)}</span><span class="row" style="gap:8px">${roleBadge(r)}<span class="tiny muted">${fmtD(r.verifiedAt)}</span></span></div>`).join("")}
-    ${cr.map(r=>`<div class="role-line"><span class="role-name">${esc(r.role)}</span>${roleBadge(r)}</div>`).join("")}
-    ${!(m.roles||[]).length?`<p class="muted">No roles yet.</p>`:""}</div>
+   <div class="card stack" style="gap:10px"><div class="row between"><h3>Roles</h3><button class="btn sm ghost" data-go="roles">What the levels mean</button></div>${rolesBlock(m)}</div>
    <div class="card stack" style="gap:10px"><h3>Summary</h3>${full?`<p>${esc(m.summary||"No summary yet.")}</p>`:`<p class="muted small">${esc(counts)}</p>`}
     <div class="eyebrow" style="margin-top:6px">Skills</div><div class="chips">${(m.skills||[]).map(s=>`<span class="chip">${esc(s)}</span>`).join("")||'<span class="muted small">None listed</span>'}</div></div>
    ${full?cvSections(m,{compact:true}):locked}
@@ -502,7 +556,8 @@ function cvDoc(m){
   return`<article class="cv"><div class="row between" style="align-items:flex-start"><div><h1>${esc(m.name)}</h1><div class="cv-sub">${esc(m.headline||"")}</div><div class="cv-sub mono" style="font-size:12.5px;margin-top:6px">DSN ID ${esc(m.dsnId)}${m.location?" · "+esc(m.location):""}</div></div><div style="text-align:right"><div style="font-family:var(--display);font-size:34px;font-weight:700;color:#0A7338;line-height:1">${total(m)}<span style="font-size:14px;color:#6b747c">/100</span></div><div style="font-size:11px;color:#6b747c">DSN Rating${m.scoreStatus==="reviewed"?" · reviewed "+fmtD(m.reviewedAt):" · not yet reviewed"}</div></div></div>
   <div class="cv-bar"></div>
   <h4 style="margin-top:0">Profile</h4><p>${esc(m.summary||"")}</p>
-  <h4>Roles</h4>${(m.roles||[]).map(r=>`<div>${esc(r.role)}${r.status==="verified"?"":" ("+esc(r.level||"")+")"} ${roleTag(r)}</div>`).join("")||"<p>—</p>"}
+  <h4>DSN verified roles</h4>${vr.length?vr.map(r=>`<div>${esc(r.role)} · <b>${esc(r.level)}</b> <span class="vtag">DSN VERIFIED ${fmtD(r.verifiedAt).toUpperCase()}</span></div>`).join(""):"<p style='color:#6b747c'>None yet</p>"}
+  ${(m.roles||[]).some(r=>r.status!=="verified")?`<h4>Claimed roles (not verified)</h4>${(m.roles||[]).filter(r=>r.status!=="verified").map(r=>`<div style="color:#4a545d">${esc(r.role)} · ${esc(r.level||"")} <span class="ctag">CLAIMED</span></div>`).join("")}`:""}
   <h4>DSN Rating breakdown</h4><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px 14px;font-size:13px">${CATS.map(c=>`<div>${esc(c.label)}: <b>${(m.scores||{})[c.k]||0}/20</b></div>`).join("")}</div>
   <h4>Skills</h4><p>${esc((m.skills||[]).join(" · "))}</p>
   <h4>Work experience</h4>${(m.experience||[]).map(e=>`<div class="it"><div class="it-h"><span>${esc(e.role)}, ${esc(e.company)}${vr.some(r=>r.role===e.role)?'<span class="vtag">ROLE VERIFIED</span>':""}</span><span class="it-m">${fmtYM(e.start)} – ${e.current?"Present":fmtYM(e.end)}</span></div><div>${esc(e.description||"")}</div></div>`).join("")||"<p>—</p>"}
@@ -525,7 +580,8 @@ async function downloadCV(id){
   txt(clean(m.headline),{size:11,color:[74,84,93],gap:0});txt("DSN ID "+m.dsnId+(m.location?"  |  "+clean(m.location):"")+"  |  DSN Rating "+(m.scoreStatus==="reviewed"?"reviewed "+fmtD(m.reviewedAt):"not yet reviewed"),{size:9,color:[107,116,124]});
   doc.setFillColor(15,155,74);doc.rect(L,y,(R-L)*.7,3,"F");doc.setFillColor(222,7,40);doc.rect(L+(R-L)*.7,y,(R-L)*.15,3,"F");doc.setFillColor(33,46,129);doc.rect(L+(R-L)*.85,y,(R-L)*.15,3,"F");y+=16;
   head("Profile");txt(clean(m.summary));
-  head("Roles");(m.roles||[]).forEach(r=>txt(clean(r.role)+(r.status==="verified"?"  -  DSN VERIFIED ("+r.level+")":"  -  Claimed, not verified"),{bold:r.status==="verified",gap:1}));y+=3;
+  head("DSN verified roles");const vrs=verifiedRoles(m);if(vrs.length)vrs.forEach(r=>txt(clean(r.role)+"  -  "+r.level+"  (verified "+fmtD(r.verifiedAt)+")",{bold:true,gap:1}));else txt("None yet",{color:[107,116,124],gap:1});y+=3;
+  const crs=(m.roles||[]).filter(r=>r.status!=="verified");if(crs.length){head("Claimed roles (not verified)");crs.forEach(r=>txt(clean(r.role)+"  -  "+(r.level||"")+"  (self-declared)",{color:[74,84,93],gap:1}));y+=3}
   head("DSN Rating breakdown");CATS.forEach(c=>txt(c.label+": "+((m.scores||{})[c.k]||0)+"/20",{gap:0}));y+=4;
   head("Skills");txt(clean((m.skills||[]).join("  |  ")));
   head("Work experience");(m.experience||[]).forEach(e=>{txt(clean(e.role+", "+e.company),{bold:true,gap:0});txt(fmtYM(e.start)+" - "+(e.current?"Present":fmtYM(e.end)),{size:9,color:[107,116,124],gap:1});txt(clean(e.description),{gap:8})});
@@ -653,45 +709,56 @@ VIEWS["m-home"]=()=>{
   let next;
   if(comp<60)next={t:"Complete your CV",d:"Your CV is "+comp+"% complete. Reviewers grade what's on it, so add your experience, projects and certificates first.",b:`<button class="btn primary" data-go="m-edit">Complete my CV</button>`};
   else if(m.scoreStatus==="default"&&!openRating)next={t:"Submit your profile for rating",d:"You're on starting scores (25/100). A reviewer will grade your profile in five categories.",b:`<button class="btn primary" data-act="req-rating">Submit for rating review</button>`};
-  else if(unverified.length)next={t:"Verify your "+esc(unverified[0].role)+" role",d:"Claimed roles show as not verified. Send your evidence to get a verified badge.",b:`<button class="btn primary" data-act="req-role" data-role="${esc(unverified[0].role)}">Request verification</button>`};
+  else if(unverified.filter(r=>!openRoleReq(m.dsnId,r.role)).length)next={t:"Verify your claimed roles",d:"Claimed roles show as not verified. You can send one request covering all of them.",b:`<button class="btn primary" data-act="req-role">Request verification</button>`};
   else next={t:"You're all set",d:"Keep your CV current. You can add a new role or ask for a re-review when you've grown.",b:`<button class="btn" data-go="m-edit">Update my CV</button>`};
   const interview=reqs.find(r=>r.status==="interview");
   return`<div class="section-h"><div><div class="eyebrow">Member dashboard</div><h1 style="font-size:32px">Hello, ${esc(m.name.split(" ")[0])}</h1></div><div class="row"><button class="btn" data-go="talent" data-p='${esc(JSON.stringify({id:m.dsnId}))}'>See my public profile</button><button class="btn" data-go="cv" data-p='${esc(JSON.stringify({id:m.dsnId}))}'>View CV</button></div></div>
   <div class="stack">
-  ${interview?`<div class="note"><b>Interview requested</b> for your ${interview.type==="role"?esc(interview.role)+" verification":"rating review"}: ${fmtDT(interview.interview?.when)}. ${interview.interview?.link?`Meeting link: <span class="mono">${esc(interview.interview.link)}</span>.`:""} ${esc(interview.interview?.note||"")}</div>`:""}
+  ${interview?`<div class="note"><b>Interview requested</b> for your ${interview.type==="role"?esc(reqRoles(interview).map(x=>x.role).join(", "))+" verification":"rating review"}: ${fmtDT(interview.interview?.when)}. ${interview.interview?.link?`Meeting link: <span class="mono">${esc(interview.interview.link)}</span>.`:""} ${esc(interview.interview?.note||"")}</div>`:""}
   <div class="card row between" style="background:var(--green-soft);border-color:var(--green-line)"><div style="max-width:70ch"><div class="eyebrow">Next step</div><h3 style="margin:4px 0">${next.t}</h3><p class="small">${next.d}</p></div>${next.b}</div>
   <div class="grid4"><div class="tile"><div class="k">DSN Rating</div><div class="v">${total(m)}<span class="small muted">/100</span></div></div><div class="tile"><div class="k">Verified roles</div><div class="v">${verifiedRoles(m).length}</div></div><div class="tile"><div class="k">CV complete</div><div class="v">${comp}%</div></div><div class="tile"><div class="k">Company views</div><div class="v">${views.reduce((a,v)=>a+(v.count||1),0)}</div></div></div>
   <div class="split wide"><div class="stack">
    <div class="card">${scorePanel(m)}<div class="row" style="margin-top:14px">${openRating?`<span class="badge pending">Rating review ${openRating.status==="interview"?"· interview requested":"submitted "+fmtD(openRating.createdAt)}</span>`:`<button class="btn ${m.scoreStatus==="default"?"primary":""}" data-act="req-rating">${m.scoreStatus==="reviewed"?"Request a re-review":"Submit for rating review"}</button>`}<button class="btn ghost sm" data-act="show-rubric">How am I graded?</button></div></div>
-   <div class="card"><div class="row between" style="margin-bottom:6px"><h3>My roles</h3><button class="btn sm" data-act="add-role">Add a claimed role</button></div>
-    ${(m.roles||[]).map(r=>{const open=reqs.find(q=>q.type==="role"&&q.role===r.role&&(q.status==="submitted"||q.status==="interview"));return`<div class="role-line"><div><div class="role-name">${esc(r.role)}</div><div class="small muted">${r.status==="verified"?"Verified "+fmtD(r.verifiedAt):"Claimed level: "+esc(r.level||"—")}${r.note&&r.status!=="verified"?" · Reviewer note: "+esc(r.note):""}</div></div><div class="row" style="gap:8px">${roleBadge(r,{short:true})}${open?`<span class="badge ${open.status==="interview"?"blue":"pending"}">${open.status==="interview"?"Interview":"Under review"}</span>`:r.status==="verified"?`<button class="btn sm ghost" data-act="req-role" data-role="${esc(r.role)}">Request upgrade</button>`:`<button class="btn sm" data-act="req-role" data-role="${esc(r.role)}">Request verification</button>`}</div></div>`}).join("")||`<p class="muted">No roles yet. Add the role you want to be known for.</p>`}</div>
+   <div class="card"><div class="row between" style="margin-bottom:6px"><h3>My roles</h3><div class="row" style="gap:8px"><button class="btn sm" data-act="add-role">Add a claimed role</button><button class="btn sm primary" data-act="req-role">Request verification</button></div></div>
+    <p class="small muted" style="margin-bottom:4px"><b style="color:var(--green-text)">Verified</b> roles were confirmed by a DSN reviewer. <b>Claimed</b> roles are your own statement until verified. <a href="#roles" data-go="roles">Role guide</a></p>
+    <div class="rgroup">${(m.roles||[]).slice().sort((a,b)=>(b.status==="verified")-(a.status==="verified")).map(r=>{const open=openRoleReq(m.dsnId,r.role);const ver=r.status==="verified";
+      const act=open?`<span class="badge ${open.status==="interview"?"blue":"pending"}">${open.status==="interview"?"Interview booked":"Under review"}</span>`:ver?`<button class="btn sm" data-act="req-role" data-role="${esc(r.role)}">Request upgrade</button>`:`<button class="btn sm" data-act="req-role" data-role="${esc(r.role)}">Verify</button>`;
+      return ver?`<div class="vrole"><span class="rn">${ICON.check}${esc(r.role)}</span><span class="row" style="gap:8px"><span class="lv">${esc(r.level)}</span><span class="dt">Verified ${fmtD(r.verifiedAt)}</span>${act}</span></div>`
+        :`<div class="crole ${open?"pend":r.status==="rejected"?"rej":""}"><span><span class="rn">${esc(r.role)}</span><br><span class="lv">${r.status==="rejected"?"Not verified by reviewer":"Claimed · not verified"} · ${esc(r.level||"")}${r.note?" · "+esc(r.note):""}</span></span>${act}</div>`}).join("")||`<p class="muted">No roles yet. Add the role you want to be known for.</p>`}</div></div>
   </div><div class="stack">
    <div class="card"><h3 style="margin-bottom:10px">Companies that viewed my profile</h3>${m.premium?(views.length?views.map(v=>`<div class="role-line"><span><b>${esc(v.company)}</b></span><span class="small muted">${v.count>1?v.count+" views · ":""}last ${fmtD(v.lastAt)}</span></div>`).join(""):`<p class="muted small">No company has opened your full profile yet.</p>`):`<div class="lock"><span class="muted">${ICON.lock}</span><div><b>${views.length} compan${views.length===1?"y has":"ies have"} viewed your profile</b><p class="small muted" style="margin-top:4px">${esc(settings().premiumNote||"Premium members can see which companies viewed their profile.")}</p></div></div>`}</div>
-   <div class="card"><h3 style="margin-bottom:10px">Requests and updates</h3>${reqs.length?`<div class="timeline">${reqs.slice(0,8).map(r=>`<div class="tl"><div><div class="row between"><b class="small">${r.type==="role"?"Role verification · "+esc(r.role):"Rating review"}</b>${statusBadge(r.status)}</div><div class="small muted">${esc((r.history||[]).slice(-1)[0]?.text||"")} · ${fmtD((r.history||[]).slice(-1)[0]?.at||r.createdAt)}</div>${r.outcome?.note?`<div class="small">Reviewer note: ${esc(r.outcome.note)}</div>`:""}</div></div>`).join("")}</div>`:`<p class="muted small">Nothing yet.</p>`}</div>
+   <div class="card"><h3 style="margin-bottom:10px">Requests and updates</h3>${reqs.length?`<div class="timeline">${reqs.slice(0,8).map(r=>`<div class="tl"><div><div class="row between"><b class="small">${r.type==="role"?"Role verification · "+esc(reqRoles(r).map(x=>x.role).join(", ")):"Rating review"}</b>${statusBadge(r.status)}</div>${r.type==="role"&&r.outcome?`<div class="small">Result: ${esc(outcomeText(r))}</div>`:""}<div class="small muted">${esc((r.history||[]).slice(-1)[0]?.text||"")} · ${fmtD((r.history||[]).slice(-1)[0]?.at||r.createdAt)}</div>${r.outcome?.note?`<div class="small">Reviewer note: ${esc(r.outcome.note)}</div>`:""}</div></div>`).join("")}</div>`:`<p class="muted small">Nothing yet.</p>`}</div>
    <div class="card stack" style="gap:10px"><h3>My current status</h3><p class="small muted">Keep this updated. DSN uses it to measure programme impact. It isn't shown to recruiters.</p><div class="small"><b>${esc(m.employmentStatus||"—")}</b>${m.currentTitle?" · "+esc(m.currentTitle):""}${m.currentOrg?" at "+esc(m.currentOrg):""}</div><button class="btn sm" data-act="update-status" style="align-self:flex-start">Update my status</button></div>
    <div class="card stack" style="gap:10px"><h3>Visibility</h3><label class="check"><input type="checkbox" data-act="toggle-vis" ${m.visible!==false?"checked":""}> Show my profile in the talent directory</label><label class="check"><input type="checkbox" data-act="toggle-otw" ${m.openToWork!==false?"checked":""}> I'm open to opportunities</label></div>
   </div></div></div>`;
 };
 function processModal(kind,role){
   const m=me();const st=settings();const docs=kind==="role"?(st.roleDocs||[]):(st.ratingDocs||[]);
-  const subject=kind==="role"?`Role Verification – ${m.dsnId} – ${role}`:`Rating Review – ${m.dsnId}`;
-  const existing=(m.roles||[]).find(r=>r.role===role);
-  modal(`<div class="stack"><div><div class="eyebrow">${kind==="role"?"Role verification":"Rating review"}</div><h2>${kind==="role"?"Verify "+esc(role):"Submit your profile for rating"}</h2></div>
-   ${kind==="role"?`<div class="fgrid">${field("pv-level","Level you are claiming",{opts:LEVELS,value:existing?.status==="verified"?(LEVELS[Math.min(LEVELS.indexOf(existing.level)+1,3)]):existing?.level||"Junior",req:true})}</div>`:`<p class="small muted">A reviewer will grade your CV and documents in five categories out of 20. They may invite you to a short online interview first.</p>`}
-   <ol class="steps"><li><div class="stack" style="gap:6px"><b>Email your documents to</b>${copyRow(st.verifyEmail||"")}</div></li><li><div class="stack" style="gap:6px"><b>Use this subject line</b>${copyRow(subject)}</div></li><li><div><b>Attach these documents</b><ul style="margin:6px 0 0;padding-left:18px" class="small">${docs.map(d=>`<li>${esc(d)}</li>`).join("")}</ul></div></li><li><span><b>Confirm below.</b> Your request goes to a reviewer who ${kind==="role"?"can approve it, assign a different role or level, or ask for an interview":"grades you against the rubric and may ask for an interview"}.</span></li></ol>
+  const subject=kind==="role"?`Role Verification – ${m.dsnId}`:`Rating Review – ${m.dsnId}`;
+  let picker="";
+  if(kind==="role"){
+    const rows=(m.roles||[]).map((r,i)=>{const open=openRoleReq(m.dsnId,r.role);const ver=r.status==="verified";const lv=ver?LEVELS[Math.min(LEVELS.indexOf(r.level)+1,3)]:(r.level||"Junior");const pre=role?role===r.role:!ver;
+      return`<label class="pick ${open?"dis":""}"><input type="checkbox" class="pv-role" data-role="${esc(r.role)}" data-i="${i}" ${open?"disabled":pre?"checked":""}><span><b>${esc(r.role)}</b><br><span class="small muted">${open?"Already under review":ver?"Verified "+esc(r.level)+" · request an upgrade":"Claimed · not verified"}</span></span><select id="pv-lv-${i}" aria-label="Level for ${esc(r.role)}" ${open?"disabled":""}>${LEVELS.map(l=>`<option ${l===lv?"selected":""}>${l}</option>`).join("")}</select></label>`}).join("");
+    picker=`<div class="stack" style="gap:8px"><div class="row between"><b>Choose the roles to verify</b><button class="btn sm ghost" type="button" data-act="close-modal" data-go="roles">Read the role guide</button></div>${rows||'<p class="muted small">Add a claimed role first.</p>'}<p class="small muted">Pick the level you believe you're at. The reviewer checks each role against DSN's role manual and may confirm it, change the role or level, or not verify it.</p></div>`;
+  }
+  modal(`<div class="stack"><div><div class="eyebrow">${kind==="role"?"Role verification":"Rating review"}</div><h2>${kind==="role"?"Request role verification":"Submit your profile for rating"}</h2></div>
+   ${kind==="role"?picker:`<p class="small muted">A reviewer will grade your CV and documents in five categories out of 20. They may invite you to a short online interview first.</p>`}
+   <ol class="steps"><li><div class="stack" style="gap:6px"><b>Email your documents to</b>${copyRow(st.verifyEmail||"")}</div></li><li><div class="stack" style="gap:6px"><b>Use this subject line</b>${copyRow(subject)}</div></li><li><div><b>Attach these documents${kind==="role"?" for each role":""}</b><ul style="margin:6px 0 0;padding-left:18px" class="small">${docs.map(d=>`<li>${esc(d)}</li>`).join("")}</ul></div></li><li><span><b>Confirm below.</b> ${kind==="role"?"One reviewer handles all the roles in this request.":"A reviewer grades you against the rubric and may ask for an interview."}</span></li></ol>
    ${st.processNote?`<div class="note small">${esc(st.processNote)}</div>`:""}
    <label class="check"><input type="checkbox" id="pv-sent"> I've sent the email with my documents.</label>
-   <div class="row"><button class="btn primary" data-act="confirm-process" data-kind="${kind}" data-role="${esc(role||"")}">Submit request</button><button class="btn ghost" data-act="close-modal">Cancel</button></div></div>`);
+   <div class="row"><button class="btn primary" data-act="confirm-process" data-kind="${kind}">Submit request</button><button class="btn ghost" data-act="close-modal">Cancel</button></div></div>`,{wide:kind==="role"});
 }
-async function confirmProcess(kind,role){
+async function confirmProcess(kind){
+  const m=clone(me());let picked=[];
+  if(kind==="role"){picked=[...document.querySelectorAll(".pv-role:checked")].map(c=>({role:c.dataset.role,level:$("#pv-lv-"+c.dataset.i).value}));if(!picked.length){toast("Choose at least one role");return}}
   if(!$("#pv-sent").checked){toast("Tick the box once you've sent your documents");return}
-  const m=clone(me());const id=rid(kind==="role"?"RQ-role":"RQ-rate");const level=kind==="role"?$("#pv-level").value||"Junior":"";
-  const req={id,type:kind,memberId:m.dsnId,status:"submitted",createdAt:now(),reviewerId:"",history:[{at:now(),by:"member",text:kind==="role"?`Verification requested for ${role} (${level}); documents emailed.`:"Profile submitted for rating review; documents emailed."}]};
-  if(kind==="role"){req.role=role;req.level=level;const r=(m.roles||[]).find(r=>r.role===role);if(r&&r.status!=="verified"){r.status="pending";r.level=level}}
+  const id=rid(kind==="role"?"RQ-role":"RQ-rate");
+  const req={id,type:kind,memberId:m.dsnId,status:"submitted",createdAt:now(),reviewerId:"",history:[{at:now(),by:"member",text:kind==="role"?`Verification requested for ${picked.map(p=>p.role+" ("+p.level+")").join(", ")}; documents emailed.`:"Profile submitted for rating review; documents emailed."}]};
+  if(kind==="role"){req.roles=picked;picked.forEach(p=>{const r=(m.roles||[]).find(x=>x.role===p.role);if(r&&r.status!=="verified"){r.status="pending";r.level=p.level}})}
   else if(m.scoreStatus!=="reviewed")m.scoreStatus="pending";
-  await put("requests",id,req);await put("members",m.dsnId,m);closeModal();toast("Request submitted");
+  await put("requests",id,req);await put("members",m.dsnId,m);closeModal();toast(kind==="role"?`Request sent for ${picked.length} role${picked.length>1?"s":""}`:"Request submitted");
 }
-function addRoleModal(){modal(`<form class="stack" id="addrole-form"><h2>Add a claimed role</h2><p class="small muted">It will show as "Claimed, not verified" until a reviewer verifies it.</p><div class="fgrid">${field("ar-role","Role",{opts:rolesList(),req:true})}${field("ar-level","Your level",{opts:LEVELS,req:true,value:"Junior"})}</div><div class="row"><button class="btn primary" type="submit">Add role</button><button class="btn ghost" type="button" data-act="close-modal">Cancel</button></div></form>`)}
+function addRoleModal(){modal(`<form class="stack" id="addrole-form"><h2>Add a claimed role</h2><p class="small muted">It shows as "Claimed · not verified" until a reviewer verifies it. You can add several roles and request verification for all of them together.</p><div class="note small" id="ar-desc">Pick a role to see what DSN expects at each level.</div><div class="fgrid">${field("ar-role","Role",{opts:rolesList(),req:true})}${field("ar-level","Your level",{opts:LEVELS,req:true,value:"Junior"})}</div><div class="row"><button class="btn primary" type="submit">Add role</button><button class="btn ghost" type="button" data-act="close-modal">Cancel</button></div></form>`)}
 function statusModal(){const m=me();modal(`<form class="stack" id="status-form"><h2>Update my current status</h2><div class="fgrid">${field("us-emp","Employment status",{opts:EMP,value:m.employmentStatus,req:true})}${field("us-title","Job title",{value:m.currentTitle})}${field("us-org","Organisation",{value:m.currentOrg,full:true})}</div><div class="row"><button class="btn primary" type="submit">Save</button><button class="btn ghost" type="button" data-act="close-modal">Cancel</button></div></form>`)}
 
 /* ---------- member CV editor ---------- */
@@ -724,7 +791,7 @@ VIEWS["r-queue"]=()=>{
   const tabs=[rv.canRole&&["role","Role verification"],rv.canRating&&["rating","Rating reviews"]].filter(Boolean);
   return`<div class="section-h"><div><div class="eyebrow">Peer reviewer · ${esc(rv.id)}</div><h1 style="font-size:32px">Review queue</h1><p class="muted">${esc(rv.expertise||"")}. Members see you as Reviewer ${esc(rv.id)}, not by name.</p></div></div>
   <div class="tabs">${tabs.map(([k,l])=>`<button class="${k===tab?"on":""}" data-act="tab" data-tab="rq" data-val="${k}">${l} (${Object.values(S.requests).filter(r=>r.type===k&&(r.status==="submitted"||r.status==="interview")&&(!r.reviewerId||r.reviewerId===rv.id)).length})</button>`).join("")}</div>
-  ${list.length?`<div class="tbl-wrap"><table><thead><tr><th>DSN ID</th><th>Member</th><th>${tab==="role"?"Claimed role":"Current rating"}</th><th>Submitted</th><th>Status</th><th></th></tr></thead><tbody>${list.map(r=>{const m=S.members[r.memberId]||{};return`<tr><td class="mono">${esc(r.memberId)}</td><td>${esc(m.name||"—")}</td><td>${tab==="role"?esc(r.role)+" · "+esc(r.level):total(m)+"/100"}</td><td>${fmtD(r.createdAt)}</td><td>${statusBadge(r.status)}${r.reviewerId===rv.id?' <span class="badge grey">Mine</span>':""}</td><td><button class="btn sm primary" data-go="r-task" data-p='${esc(JSON.stringify({id:r.id}))}'>Open</button></td></tr>`}).join("")}</tbody></table></div>`:`<div class="empty">No open ${tab==="role"?"role verifications":"rating reviews"}. New requests appear here.</div>`}`;
+  ${list.length?`<div class="tbl-wrap"><table><thead><tr><th>DSN ID</th><th>Member</th><th>${tab==="role"?"Roles to verify":"Current rating"}</th><th>Submitted</th><th>Status</th><th></th></tr></thead><tbody>${list.map(r=>{const m=S.members[r.memberId]||{};return`<tr><td class="mono">${esc(r.memberId)}</td><td>${esc(m.name||"—")}</td><td>${tab==="role"?reqRoles(r).map(x=>`<div class="small">${esc(x.role)} · ${esc(x.level)}</div>`).join(""):total(m)+"/100"}</td><td>${fmtD(r.createdAt)}</td><td>${statusBadge(r.status)}${r.reviewerId===rv.id?' <span class="badge grey">Mine</span>':""}</td><td><button class="btn sm primary" data-go="r-task" data-p='${esc(JSON.stringify({id:r.id}))}'>Open</button></td></tr>`}).join("")}</tbody></table></div>`:`<div class="empty">No open ${tab==="role"?"role verifications":"rating reviews"}. New requests appear here.</div>`}`;
 };
 VIEWS["r-task"]=({id})=>{
   const rv=me();const r=S.requests[id];if(!r)return`<div class="empty">Request not found.</div>`;const m=S.members[r.memberId];if(!m)return`<div class="empty">Member not found.</div>`;
@@ -733,13 +800,18 @@ VIEWS["r-task"]=({id})=>{
   const interviewBox=`<details class="card" ${r.status==="interview"?"open":""}><summary style="cursor:pointer;font-weight:700">Request an interview</summary><div class="stack" style="margin-top:12px">${r.interview?`<div class="note small">Interview set for ${fmtDT(r.interview.when)}${r.interview.link?` · <span class="mono">${esc(r.interview.link)}</span>`:""}</div>`:""}<div class="fgrid">${field("iv-when","Date and time",{type:"datetime-local",value:r.interview?.when||""})}${field("iv-link","Meeting link",{type:"url",value:r.interview?.link||"",ph:"https://meet.google.com/…"})}${field("iv-note","Message to member",{rows:2,full:true,value:r.interview?.note||"",ph:"What should they prepare?"})}</div><button class="btn blue" data-act="rv-interview" data-id="${esc(id)}" style="align-self:flex-start">${r.interview?"Update interview":"Send interview request"}</button></div></details>`;
   let form;
   if(r.type==="role"){
-    form=`<div class="card stack"><div><div class="eyebrow">Decision</div><h3>${esc(r.role)} · claimed ${esc(r.level)}</h3></div>
-     <label class="check"><input type="radio" name="rv-dec" value="verified" checked> Verify as claimed (${esc(r.role)} · ${esc(r.level)})</label>
-     <label class="check"><input type="radio" name="rv-dec" value="changed"> Verify with a different role or level</label>
-     <div class="fgrid" id="rv-change">${field("rv-role","Role",{opts:rolesList(),value:r.role})}${field("rv-level","Level",{opts:LEVELS,value:r.level==="Junior"?"Junior":LEVELS[Math.max(0,LEVELS.indexOf(r.level)-1)]})}</div>
-     <label class="check"><input type="radio" name="rv-dec" value="rejected"> Not verified</label>
-     ${field("rv-note","Note to member",{rows:3,hint:"Required if you change or reject. Explain what evidence was missing."})}
-     <div class="row"><button class="btn primary" data-act="rv-submit-role" data-id="${esc(id)}">Submit decision</button></div></div>`;
+    const req=reqRoles(r);const reqNames=new Set(req.map(x=>x.role));const others=(m.roles||[]).filter(x=>!reqNames.has(x.role));
+    const opts=(sel,list)=>list.map(o=>`<option ${o===sel?"selected":""}>${esc(o)}</option>`).join("");
+    const allRoles=[...new Set([...rolesList(),...req.map(x=>x.role)])];
+    form=`<div class="card stack"><div><div class="eyebrow">Decide each role</div><h3>${req.length} role${req.length>1?"s":""} requested</h3><p class="small muted">Set the final role and level using the role manual. Change either one if the evidence fits a different role or level.</p></div>
+     ${req.map((x,i)=>{const cur=(m.roles||[]).find(y=>y.role===x.role);return`<div class="decision"><div class="row between"><div><b>${esc(x.role)}</b> <span class="small muted">· claimed ${esc(x.level)}${cur?.status==="verified"?" · currently verified "+esc(cur.level):""}</span></div><button class="btn sm ghost" data-act="rv-manual" data-role="${esc(x.role)}">Manual</button></div>
+      <div class="fgrid"><label class="f" for="d-st-${i}">Decision<select id="d-st-${i}"><option value="verified">Verify</option><option value="rejected">Not verified</option></select></label><label class="f" for="d-role-${i}">Final role<select id="d-role-${i}" data-act="rv-manual-sel">${opts(x.role,allRoles)}</select></label><label class="f" for="d-lv-${i}">Final level<select id="d-lv-${i}">${opts(x.level,LEVELS)}</select></label></div>
+      <input type="text" id="d-note-${i}" placeholder="Note to member (needed if you change or don't verify)" aria-label="Note for ${esc(x.role)}"></div>`}).join("")}
+     ${others.length?`<details class="stack"><summary style="cursor:pointer;font-weight:700">Other roles on this profile (${others.length})</summary><div class="stack" style="gap:8px;margin-top:10px">${others.map((x,i)=>`<div class="decision"><b>${esc(x.role)}</b><div class="fgrid"><label class="f" for="o-st-${i}">Status<select id="o-st-${i}" data-role="${esc(x.role)}" class="o-st"><option value="keep">Keep as is (${x.status==="verified"?"verified "+esc(x.level):"claimed"})</option><option value="verified">Verify</option><option value="claimed">Set as claimed, not verified</option><option value="remove">Remove from profile</option></select></label><label class="f" for="o-lv-${i}">Level<select id="o-lv-${i}">${opts(x.level,LEVELS)}</select></label></div></div>`).join("")}</div></details>`:""}
+     <div class="stack" style="gap:8px"><div class="row between"><b>Add a role the member didn't claim</b><button class="btn sm" data-act="rv-add-row">Add role</button></div><div id="rv-added" class="stack" style="gap:8px"></div></div>
+     ${field("rv-note","Overall note to member",{rows:2})}
+     <div class="row"><button class="btn primary" data-act="rv-submit-role" data-id="${esc(id)}">Save final roles</button></div></div>`;
+    UI.manualRole=UI.manualRole&&UI.manualFor===id?UI.manualRole:req[0]?.role;UI.manualFor=id;
   }else{
     form=`<div class="card"><div class="eyebrow">Score each category out of 20</div>${CATS.map(c=>`<div class="scorein"><div><b>${esc(c.label)}</b><details><summary class="small muted" style="cursor:pointer">Rubric</summary><div class="rubric">${c.bands.map(([b,t])=>`<b>${b}</b><span>${esc(t)}</span>`).join("")}</div></details></div><input type="number" min="0" max="20" step="1" id="sc-${c.k}" value="${(m.scoreStatus==="reviewed"?(m.scores||{})[c.k]:"")??""}" aria-label="${esc(c.label)} score" data-act-input="score"></div>`).join("")}
      <div class="row between" style="margin-top:14px"><span class="muted">Total</span><span class="score-big"><b id="sc-total" style="font-size:34px">—</b><span>/ 100</span></span></div>
@@ -749,23 +821,34 @@ VIEWS["r-task"]=({id})=>{
   after(()=>{const upd=()=>{let t=0,ok=true;CATS.forEach(c=>{const v=$("#sc-"+c.k)?.value;if(v===""||v==null)ok=false;t+=+v||0});if($("#sc-total"))$("#sc-total").textContent=ok?t:"—"};document.querySelectorAll("[data-act-input=score]").forEach(i=>i.addEventListener("input",upd));upd()});
   return`<button class="btn sm ghost" data-go="r-queue" style="margin-bottom:12px">← Queue</button>
   <div class="section-h"><div><div class="eyebrow">${r.type==="role"?"Role verification":"Rating review"} · ${esc(r.id)}</div><h1 style="font-size:28px">${esc(m.name)} <span class="mono muted" style="font-size:16px">${esc(m.dsnId)}</span></h1><p class="muted">Check the documents the member emailed to ${esc(settings().verifyEmail)} against the CV below.</p></div>${statusBadge(r.status)}</div>
-  <div class="split wide"><div class="stack"><div class="card">${scorePanel(m,{compact:true})}</div><div class="card"><h3 style="margin-bottom:8px">Roles on profile</h3>${(m.roles||[]).map(x=>`<div class="role-line"><span>${esc(x.role)}</span>${roleBadge(x)}</div>`).join("")}</div><div class="card stack" style="gap:8px"><h3>Summary</h3><p>${esc(m.summary||"")}</p><div class="chips">${(m.skills||[]).map(s=>`<span class="chip">${esc(s)}</span>`).join("")}</div></div>${cvSections(m)}</div>
-  <div class="stack">${done?`<div class="card"><h3>Completed</h3><p class="small muted">${esc((r.history||[]).slice(-1)[0]?.text||"")}</p></div>`:form+interviewBox}
+  <div class="split wide"><div class="stack"><div class="card">${scorePanel(m,{compact:true})}</div><div class="card"><h3 style="margin-bottom:8px">Roles on profile</h3>${rolesBlock(m)}</div><div class="card stack" style="gap:8px"><h3>Summary</h3><p>${esc(m.summary||"")}</p><div class="chips">${(m.skills||[]).map(s=>`<span class="chip">${esc(s)}</span>`).join("")}</div></div>${cvSections(m)}</div>
+  <div class="stack">${done?`<div class="card"><h3>Completed</h3><p class="small muted">${esc((r.history||[]).slice(-1)[0]?.text||"")}</p>${r.type==="role"?`<p class="small" style="margin-top:6px">${esc(outcomeText(r))}</p>`:""}</div>`:form+interviewBox}
+   ${r.type==="role"?`<div class="card" id="manual-panel">${manualPanel(UI.manualRole||reqRoles(r)[0]?.role)}</div>`:""}
    <div class="card"><h3 style="margin-bottom:8px">History</h3><div class="timeline">${(r.history||[]).map(h=>`<div class="tl"><div class="small"><b>${esc(h.by==="member"?"Member":h.by)}</b> · ${fmtDT(h.at)}<div class="muted">${esc(h.text)}</div></div></div>`).join("")}</div></div></div></div>`;
 };
 async function rvInterview(id){const r=clone(S.requests[id]);const when=$("#iv-when").value;if(!when){toast("Pick a date and time");return}r.interview={when,link:$("#iv-link").value.trim(),note:$("#iv-note").value.trim()};r.status="interview";r.reviewerId=SESSION.id;(r.history=r.history||[]).push({at:now(),by:SESSION.id,text:"Interview requested for "+fmtDT(when)+"."});await put("requests",id,r);toast("Interview request sent to member")}
+function manualPanel(role){const mm=manualFor(role);return`<div class="eyebrow">Role manual</div><h3 style="margin:4px 0">${esc(role||"")}</h3>${mm.summary?`<p class="small muted" style="margin-bottom:10px">${esc(mm.summary)}</p>`:""}<div class="manual-lv">${LEVELS.map(l=>`<b>${l}</b><span>${esc(levelDesc(role,l))}</span>`).join("")}</div>`}
+function addedRowHTML(n){return`<div class="decision" data-added="${n}"><div class="fgrid"><label class="f">Role<select class="a-role">${rolesList().map(o=>`<option>${esc(o)}</option>`).join("")}</select></label><label class="f">Level<select class="a-lv">${LEVELS.map(o=>`<option>${o}</option>`).join("")}</select></label><div style="align-self:end"><button class="btn sm danger" data-act="rv-del-row">Remove</button></div></div></div>`}
 async function rvSubmitRole(id){
-  const r=clone(S.requests[id]);const m=clone(S.members[r.memberId]);const dec=document.querySelector("input[name=rv-dec]:checked").value;const note=$("#rv-note").value.trim();
-  if(dec!=="verified"&&!note){toast("Add a note explaining your decision");return}
-  const roles=m.roles||[];let claimed=roles.find(x=>x.role===r.role);let text;
-  if(dec==="rejected"){if(claimed&&claimed.status!=="verified"){claimed.status="claimed";claimed.note=note}r.status="rejected";r.outcome={action:"rejected",note};text="Not verified for "+r.role+"."}
-  else{const role=dec==="changed"?$("#rv-role").value:r.role;const level=dec==="changed"?$("#rv-level").value:r.level;if(!role||!level){toast("Choose the role and level");return}
-    if(dec==="changed"&&role!==r.role&&claimed&&claimed.status!=="verified"){claimed.status="claimed";claimed.note="Reviewer verified "+role+" instead."}
-    let target=roles.find(x=>x.role===role);if(!target){target={role};roles.push(target)}
-    Object.assign(target,{level,status:"verified",verifiedAt:now(),verifiedBy:SESSION.id,note:dec==="changed"?note:""});
-    r.status="completed";r.outcome={action:dec,role,level,note};text=(dec==="changed"?"Verified with changes: ":"Verified as ")+role+" · "+level+".";}
-  m.roles=roles;r.completedAt=now();r.reviewerId=SESSION.id;(r.history=r.history||[]).push({at:now(),by:SESSION.id,text});
-  await put("members",m.dsnId,m);await put("requests",id,r);toast("Decision saved and shown on the member's profile");go("r-queue");
+  const r=clone(S.requests[id]);const m=clone(S.members[r.memberId]);const req=reqRoles(r);const overall=$("#rv-note").value.trim();
+  let roles=m.roles||[];const find=n=>roles.find(x=>x.role===n);const stamp={verifiedAt:now(),verifiedBy:SESSION.id};
+  const decisions=[];
+  for(let i=0;i<req.length;i++){const x=req[i];const st=$("#d-st-"+i).value,fr=$("#d-role-"+i).value,fl=$("#d-lv-"+i).value,note=$("#d-note-"+i).value.trim();
+    const changed=fr!==x.role||fl!==x.level;if((st==="rejected"||changed)&&!note){toast("Add a note for "+x.role+" explaining your decision");$("#d-note-"+i).focus();return}
+    decisions.push({role:x.role,claimedLevel:x.level,verified:st==="verified",finalRole:fr,finalLevel:fl,note});}
+  const added=[...document.querySelectorAll("#rv-added [data-added]")].map(el=>({role:el.querySelector(".a-role").value,level:el.querySelector(".a-lv").value}));
+  for(const d of decisions){const orig=find(d.role);
+    if(d.verified){let t=find(d.finalRole);if(!t){t={role:d.finalRole};roles.push(t)}Object.assign(t,{level:d.finalLevel,status:"verified",note:d.note,...stamp});
+      if(d.finalRole!==d.role&&orig&&orig.status!=="verified"){orig.status="rejected";orig.note="Reviewer verified "+d.finalRole+" instead."+(d.note?" "+d.note:"")}}
+    else if(orig&&orig.status!=="verified"){orig.status="rejected";orig.note=d.note}
+    else if(orig){orig.note=d.note}}
+  document.querySelectorAll(".o-st").forEach((sel,i)=>{const n=sel.dataset.role,v=sel.value,lv=$("#o-lv-"+i).value;const t=find(n);if(!t||v==="keep")return;
+    if(v==="remove")roles=roles.filter(x=>x.role!==n);else if(v==="verified")Object.assign(t,{level:lv,status:"verified",note:"",...stamp});else Object.assign(t,{level:lv,status:"claimed",verifiedAt:null,verifiedBy:null});});
+  for(const a of added){let t=roles.find(x=>x.role===a.role);if(!t){t={role:a.role};roles.push(t)}Object.assign(t,{level:a.level,status:"verified",note:"Added by reviewer.",...stamp})}
+  m.roles=roles;const anyV=decisions.some(d=>d.verified)||added.length;
+  r.status=anyV?"completed":"rejected";r.completedAt=now();r.reviewerId=SESSION.id;r.outcome={decisions,added,note:overall};
+  (r.history=r.history||[]).push({at:now(),by:SESSION.id,text:"Final roles: "+outcomeText(r)});
+  await put("members",m.dsnId,m);await put("requests",id,r);toast("Final roles saved to the member's profile");go("r-queue");
 }
 async function rvSubmitRating(id){
   const r=clone(S.requests[id]);const m=clone(S.members[r.memberId]);const sc={};
@@ -776,9 +859,22 @@ async function rvSubmitRating(id){
   await put("members",m.dsnId,m);await put("requests",id,r);toast("Scores published: "+t+"/100");go("r-queue");
 }
 VIEWS["r-done"]=()=>{const list=Object.values(S.requests).filter(r=>r.reviewerId===SESSION.id&&(r.status==="completed"||r.status==="rejected")).sort((a,b)=>String(b.completedAt).localeCompare(a.completedAt));
-  return`<div class="section-h"><h1 style="font-size:32px">Completed reviews</h1></div>${list.length?`<div class="tbl-wrap"><table><thead><tr><th>DSN ID</th><th>Type</th><th>Result</th><th>Completed</th><th></th></tr></thead><tbody>${list.map(r=>`<tr><td class="mono">${esc(r.memberId)}</td><td>${r.type==="role"?"Role · "+esc(r.role):"Rating"}</td><td>${r.type==="rating"?(r.outcome?.total??"")+"/100":r.status==="rejected"?"Not verified":esc(r.outcome?.role)+" · "+esc(r.outcome?.level)}</td><td>${fmtD(r.completedAt)}</td><td><button class="btn sm" data-go="r-task" data-p='${esc(JSON.stringify({id:r.id}))}'>View</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">You haven't completed any reviews yet.</div>`}`};
+  return`<div class="section-h"><h1 style="font-size:32px">Completed reviews</h1></div>${list.length?`<div class="tbl-wrap"><table><thead><tr><th>DSN ID</th><th>Type</th><th>Result</th><th>Completed</th><th></th></tr></thead><tbody>${list.map(r=>`<tr><td class="mono">${esc(r.memberId)}</td><td>${r.type==="role"?"Roles":"Rating"}</td><td class="small">${esc(outcomeText(r))}</td><td>${fmtD(r.completedAt)}</td><td><button class="btn sm" data-go="r-task" data-p='${esc(JSON.stringify({id:r.id}))}'>View</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">You haven't completed any reviews yet.</div>`}`};
 VIEWS["r-rubric"]=()=>`<div class="section-h"><div><h1 style="font-size:32px">Rating rubric</h1><p class="muted">Five categories × 20 points = DSN Rating out of 100. New profiles start at 5 per category.</p></div></div>${rubricHTML()}`;
 function rubricHTML(){return`<div class="grid2">${CATS.map(c=>`<div class="card"><h3>${esc(c.label)} <span class="muted small">/20</span></h3><div class="rubric">${c.bands.map(([b,t])=>`<b>${b}</b><span>${esc(t)}</span>`).join("")}</div></div>`).join("")}<div class="card"><h3>Role levels</h3><div class="rubric"><b>Junior</b><span>Delivers defined tasks with guidance.</span><b>Mid</b><span>Delivers standard work independently.</span><b>Senior</b><span>Owns complex work and guides others.</span><b>Lead</b><span>Sets direction, leads teams, recognised expertise.</span></div></div></div>`}
+
+VIEWS.roles=()=>{const man=roleManual();const list=[...new Set([...rolesList(),...Object.keys(man)])];const usingDefault=!(settings().roleManual&&Object.keys(settings().roleManual).length);
+  return`<div class="section-h"><div><div class="eyebrow">Role manual</div><h1 style="font-size:32px">Roles and levels</h1><p class="muted">Reviewers verify each role against these descriptions.</p></div></div>
+  ${usingDefault?`<div class="note warn small" style="margin-bottom:14px">These are starter descriptions. DSN replaces them with the official role manual.</div>`:""}
+  <div class="card" style="margin-bottom:16px"><h3 style="margin-bottom:8px">Levels in general</h3><div class="manual-lv">${LEVELS.map(l=>`<b>${l}</b><span>${esc(GENERIC_LEVELS[l])}</span>`).join("")}</div></div>
+  <div class="grid2">${list.map(r=>`<div class="card">${manualPanel(r).replace('<div class="eyebrow">Role manual</div>','')}</div>`).join("")}</div>`};
+VIEWS["a-roles"]=()=>{const man=roleManual();const list=[...new Set([...rolesList(),...Object.keys(man)])];const cur=UI.tab.arole&&list.includes(UI.tab.arole)?UI.tab.arole:list[0];const mm=manualFor(cur);
+  return`<div class="section-h"><div><h1 style="font-size:32px">Role manual</h1><p class="muted">Reviewers and members see these descriptions. Add or rename roles in Settings.</p></div><button class="btn" data-go="roles">Preview</button></div>
+  <div class="split"><form class="card stack" id="role-form" data-role="${esc(cur)}"><label class="f" for="ar-pick">Role<select id="ar-pick" data-act="arole-pick">${list.map(r=>`<option ${r===cur?"selected":""}>${esc(r)}</option>`).join("")}</select></label>
+   ${field("rm-sum","What this role does",{rows:2,value:mm.summary||""})}
+   ${LEVELS.map((l,i)=>field("rm-l"+i,l,{rows:2,value:(mm.levels||{})[l]||"",ph:GENERIC_LEVELS[l]})).join("")}
+   <div class="row"><button class="btn primary" type="submit">Save ${esc(cur)}</button></div></form>
+   <div class="card stack"><h3>Using your own manual</h3><p class="small muted">Paste DSN's official description for each role and level here. Empty level boxes fall back to the general level description.</p></div></div>`};
 
 /* ---------- RECRUITER ---------- */
 VIEWS["rc-requests"]=()=>{const rc=me();const list=Object.values(S.talentRequests).filter(t=>t.recruiterId===rc.id).sort((a,b)=>String(b.createdAt).localeCompare(a.createdAt));
@@ -809,7 +905,7 @@ VIEWS["a-home"]=()=>{
   return`<div class="section-h"><div><div class="eyebrow">DSN Admin</div><h1 style="font-size:32px">Overview</h1></div></div>
   ${empty?`<div class="note warn" style="margin-bottom:16px">The platform has no records yet. <button class="btn sm" data-act="load-sample">Load sample data</button> to try every flow, or start by approving real applications.</div>`:""}
   <div class="grid3" style="margin-bottom:20px">${tile("Applications to approve",apps,"a-apps")}${tile("Role verifications open",roleOpen,"a-verify")}${tile("Rating reviews open",rateOpen,"a-verify")}${tile("Recruiters to approve",rcP,"a-recruiters")}${tile("Subscription requests",subR,"a-recruiters")}${tile("Open partner requests",trOpen,"a-talent")}</div>
-  <div class="card"><h3 style="margin-bottom:10px">Recent decisions</h3>${recent.length?`<div class="tbl-wrap" style="border:0"><table><thead><tr><th>When</th><th>Member</th><th>Type</th><th>Reviewer</th><th>Result</th></tr></thead><tbody>${recent.map(r=>`<tr><td>${fmtD(r.completedAt)}</td><td><span class="mono">${esc(r.memberId)}</span> ${esc(S.members[r.memberId]?.name||"")}</td><td>${r.type==="role"?"Role · "+esc(r.role):"Rating"}</td><td>${esc(r.reviewerId)} · ${esc(S.reviewers[r.reviewerId]?.name||"")}</td><td>${r.type==="rating"?(r.outcome?.total??"")+"/100":r.status==="rejected"?"Not verified":esc(r.outcome?.role)+" · "+esc(r.outcome?.level)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted small">No decisions yet.</p>`}</div>`;
+  <div class="card"><h3 style="margin-bottom:10px">Recent decisions</h3>${recent.length?`<div class="tbl-wrap" style="border:0"><table><thead><tr><th>When</th><th>Member</th><th>Type</th><th>Reviewer</th><th>Result</th></tr></thead><tbody>${recent.map(r=>`<tr><td>${fmtD(r.completedAt)}</td><td><span class="mono">${esc(r.memberId)}</span> ${esc(S.members[r.memberId]?.name||"")}</td><td>${r.type==="role"?"Roles":"Rating"}</td><td>${esc(r.reviewerId)} · ${esc(S.reviewers[r.reviewerId]?.name||"")}</td><td class="small">${esc(outcomeText(r))}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted small">No decisions yet.</p>`}</div>`;
 };
 VIEWS["a-apps"]=()=>{const tab=UI.tab.apps||"pending";const list=Object.values(S.applications).filter(a=>a.status===tab).sort((a,b)=>String(b.createdAt).localeCompare(a.createdAt));
   return`<div class="section-h"><div><h1 style="font-size:32px">Applications</h1><p class="muted">Approving an application creates the member's profile with starting scores of 5 per category.</p></div><button class="btn" data-act="new-member">Create a profile manually</button></div>
@@ -839,7 +935,7 @@ function adminMemberModal(id){const m=S.members[id];modal(`<div class="stack"><d
 VIEWS["a-verify"]=()=>{const tab=UI.tab.av||"open";const rq=Object.values(S.requests).filter(r=>tab==="open"?(r.status==="submitted"||r.status==="interview"):(r.status==="completed"||r.status==="rejected")).sort((a,b)=>String(b.createdAt).localeCompare(a.createdAt));const rvs=Object.values(S.reviewers).filter(r=>r.active!==false);
   return`<div class="section-h"><div><h1 style="font-size:32px">Verifications & reviews</h1><p class="muted">Assign requests to a reviewer, or leave unassigned so any eligible reviewer can pick them up. Reviewer names are visible only here.</p></div></div>
   <div class="tabs">${[["open","Open"],["done","Completed"]].map(([k,l])=>`<button class="${k===tab?"on":""}" data-act="tab" data-tab="av" data-val="${k}">${l}</button>`).join("")}</div>
-  ${rq.length?`<div class="tbl-wrap"><table><thead><tr><th>Request</th><th>Member</th><th>Type</th><th>Status</th><th>Reviewer</th><th>Created</th></tr></thead><tbody>${rq.map(r=>`<tr><td class="mono small">${esc(r.id)}</td><td><span class="mono">${esc(r.memberId)}</span><div class="small muted">${esc(S.members[r.memberId]?.name||"")}</div></td><td>${r.type==="role"?"Role · "+esc(r.role)+" ("+esc(r.level)+")":"Rating review"}${r.outcome?`<div class="small muted">${r.type==="rating"?"Scored "+(r.outcome.total??"")+"/100":esc(r.outcome.action)+(r.outcome.role?" · "+esc(r.outcome.role)+" "+esc(r.outcome.level):"")}</div>`:""}</td><td>${statusBadge(r.status)}</td><td>${tab==="open"?`<select data-act="assign" data-id="${esc(r.id)}" aria-label="Assign reviewer"><option value="">Unassigned</option>${rvs.filter(v=>reviewerCan(v,r)).map(v=>`<option value="${v.id}" ${v.id===r.reviewerId?"selected":""}>${v.id} · ${esc(v.name)}</option>`).join("")}</select>`:`${esc(r.reviewerId)} · ${esc(S.reviewers[r.reviewerId]?.name||"")}`}</td><td>${fmtD(r.createdAt)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Nothing here.</div>`}`};
+  ${rq.length?`<div class="tbl-wrap"><table><thead><tr><th>Request</th><th>Member</th><th>Type</th><th>Status</th><th>Reviewer</th><th>Created</th></tr></thead><tbody>${rq.map(r=>`<tr><td class="mono small">${esc(r.id)}</td><td><span class="mono">${esc(r.memberId)}</span><div class="small muted">${esc(S.members[r.memberId]?.name||"")}</div></td><td>${r.type==="role"?"Roles · "+esc(reqRolesText(r)):"Rating review"}${r.outcome?`<div class="small muted">Result: ${esc(outcomeText(r))}</div>`:""}</td><td>${statusBadge(r.status)}</td><td>${tab==="open"?`<select data-act="assign" data-id="${esc(r.id)}" aria-label="Assign reviewer"><option value="">Unassigned</option>${rvs.filter(v=>reviewerCan(v,r)).map(v=>`<option value="${v.id}" ${v.id===r.reviewerId?"selected":""}>${v.id} · ${esc(v.name)}</option>`).join("")}</select>`:`${esc(r.reviewerId)} · ${esc(S.reviewers[r.reviewerId]?.name||"")}`}</td><td>${fmtD(r.createdAt)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Nothing here.</div>`}`};
 VIEWS["a-reviewers"]=()=>{const list=Object.values(S.reviewers).sort((a,b)=>a.id.localeCompare(b.id));
   return`<div class="section-h"><div><h1 style="font-size:32px">Peer reviewers</h1><p class="muted">Role verifiers approve or change claimed roles. Rating reviewers grade credentials and can interview.</p></div><button class="btn primary" data-act="new-reviewer">Add reviewer</button></div>
   <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Expertise</th><th>Can verify roles</th><th>Can rate profiles</th><th>Completed</th><th>Status</th><th></th></tr></thead><tbody>${list.map(r=>`<tr><td class="mono">${esc(r.id)}</td><td>${esc(r.name)}<div class="small muted">${esc(r.email)}</div></td><td class="small">${esc(r.expertise)}</td><td><input type="checkbox" data-act="rv-perm" data-f="canRole" data-id="${r.id}" ${r.canRole?"checked":""} aria-label="Can verify roles"></td><td><input type="checkbox" data-act="rv-perm" data-f="canRating" data-id="${r.id}" ${r.canRating?"checked":""} aria-label="Can rate profiles"></td><td class="num">${Object.values(S.requests).filter(q=>q.reviewerId===r.id&&q.completedAt).length}</td><td>${r.active===false?'<span class="badge grey">Inactive</span>':'<span class="badge verified">Active</span>'}</td><td><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-act="rv-active" data-id="${r.id}">${r.active===false?"Activate":"Deactivate"}</button><button class="btn sm" data-act="reset-pw" data-kind="reviewers" data-id="${r.id}">Reset password</button></div></td></tr>`).join("")}</tbody></table></div>`};
@@ -902,7 +998,10 @@ document.addEventListener("click",async e=>{
    case"request-talent":if(!isRecruiter()){go("login",{kind:"recruiter"});break}if(id&&!isSubscribed()){go("rc-plan");break}talentRequestModal(id);break;
    case"req-rating":processModal("rating");break;
    case"req-role":processModal("role",a.dataset.role);break;
-   case"confirm-process":confirmProcess(a.dataset.kind,a.dataset.role);break;
+   case"confirm-process":confirmProcess(a.dataset.kind);break;
+   case"rv-manual":{UI.manualRole=a.dataset.role;const p=$("#manual-panel");if(p){p.innerHTML=manualPanel(a.dataset.role);p.scrollIntoView({block:"nearest",behavior:"smooth"})}break}
+   case"rv-add-row":{const c=$("#rv-added");c.insertAdjacentHTML("beforeend",addedRowHTML(c.children.length));break}
+   case"rv-del-row":a.closest("[data-added]").remove();break;
    case"add-role":addRoleModal();break;
    case"update-status":statusModal();break;
    case"cv-add":DRAFT[a.dataset.sec]=[...(DRAFT[a.dataset.sec]||[]),clone(SECTIONS[a.dataset.sec].blank)];render();break;
@@ -940,9 +1039,13 @@ document.addEventListener("change",async e=>{
   if(act==="toggle-premium"){const m=clone(S.members[id]);m.premium=a.checked;await put("members",id,m);toast(m.premium?"Premium on":"Premium off")}
   if(act==="rv-perm"){const r=clone(S.reviewers[id]);r[a.dataset.f]=a.checked;await put("reviewers",id,r)}
   if(act==="assign"){const r=clone(S.requests[id]);r.reviewerId=a.value;(r.history=r.history||[]).push({at:now(),by:"admin",text:a.value?"Assigned to "+a.value+".":"Unassigned."});await put("requests",id,r);toast("Assigned")}
+  if(act==="rv-manual-sel"){UI.manualRole=a.value;const p=$("#manual-panel");if(p)p.innerHTML=manualPanel(a.value)}
+  if(act==="arole-pick"){UI.tab.arole=a.value;render()}
+  if(a.id==="ar-role"||e.target.id==="ar-role"){}
   if(act==="tr-status"){const t=clone(S.talentRequests[id]);t.status=a.value;await put("talentRequests",id,t);toast("Status updated")}
   if(e.target.name==="rv-dec"){}
 });
+document.addEventListener("change",e=>{if(e.target.id==="ar-role"){const d=$("#ar-desc");const r=e.target.value;if(d)d.innerHTML=r?`<b>${esc(r)}</b>: ${esc(manualFor(r).summary||"")}<div class="manual-lv" style="margin-top:8px">${LEVELS.map(l=>`<b>${l}</b><span>${esc(levelDesc(r,l))}</span>`).join("")}</div>`:"Pick a role to see what DSN expects at each level."}});
 document.addEventListener("input",e=>{if(e.target.id==="mq"){UI.tab.mq=e.target.value;clearTimeout(window.__mq);window.__mq=setTimeout(()=>{render();const i=$("#mq");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},300)}});
 document.addEventListener("submit",async e=>{
   const f=e.target;e.preventDefault();
@@ -955,6 +1058,7 @@ document.addEventListener("submit",async e=>{
   if(f.id==="nm-form"){const v=i=>($("#"+i).value||"").trim();const id=cleanId(v("nm-id"));const err=$("#nm-err");if(!id||!v("nm-name")||!/^\S+@\S+\.\S+$/.test(v("nm-email"))||!v("nm-emp")||!v("nm-role")){err.hidden=false;err.textContent="Fill in every required field.";return}if(S.members[id]){err.hidden=false;err.textContent="A profile with that DSN ID already exists.";return}
     await put("applications",id,{dsnId:id,name:v("nm-name"),email:v("nm-email"),state:v("nm-state"),employmentStatus:v("nm-emp"),primaryRole:v("nm-role"),otherRoles:[],programmes:[],status:"pending",createdAt:now(),source:"Admin"});await approveApp(id);return}
   if(f.id==="nr-form"){const name=$("#nr-name").value.trim(),email=$("#nr-email").value.trim();const err=$("#nr-err");if(!name||!/^\S+@\S+\.\S+$/.test(email)){err.hidden=false;err.textContent="Add a name and valid email.";return}let n=1;while(S.reviewers["RV-"+String(n).padStart(3,"0")])n++;const id="RV-"+String(n).padStart(3,"0");await put("reviewers",id,{id,name,email,expertise:$("#nr-exp").value.trim(),canRole:$("#nr-role").checked,canRating:$("#nr-rate").checked,active:true,createdAt:now(),salt:"",pwHash:""});closeModal();toast("Reviewer "+id+" created. They log in with this ID and set a password.");return}
+  if(f.id==="role-form"){const role=f.dataset.role;const man=clone(roleManual());man[role]={summary:$("#rm-sum").value.trim(),levels:Object.fromEntries(LEVELS.map((l,i)=>[l,$("#rm-l"+i).value.trim()]).filter(([,v])=>v))};const st={...clone(settings()),roleManual:man,updatedAt:now()};await put("settings","main",st);toast("Saved "+role);return}
   if(f.id==="set-form"){const lines=i=>$("#"+i).value.split("\n").map(s=>s.trim()).filter(Boolean);const st={...clone(settings()),verifyEmail:$("#st-email").value.trim(),roleDocs:lines("st-roledocs"),ratingDocs:lines("st-ratedocs"),processNote:$("#st-note").value.trim(),premiumNote:$("#st-prem").value.trim(),roles:lines("st-roles"),programmes:lines("st-progs"),updatedAt:now()};await put("settings","main",st);toast("Settings saved");return}
 });
 function wire(){if(R.name==="directory")bindDir();if(R.name==="m-edit")bindCV()}
