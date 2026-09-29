@@ -1,70 +1,49 @@
 # DSN Talent Platform (DSN TaaS)
 
-A simple talent platform for Data Science Nigeria. It connects three groups, with DSN in the middle:
+Data Science Nigeria's talent platform. It connects DSN community members (talent), peer reviewers and hiring
+partners, with DSN in the middle. Partners never contact members directly; they send talent requests to DSN.
 
-- **Members** apply with their DSN ID. DSN approves the application and creates the profile. The member logs in with the DSN ID, creates a password, fills in one standard CV and asks for reviews.
-- **Peer reviewers** verify claimed roles (approve, reject, or assign a different role or level) and rate profiles out of 100. They can ask for an interview first.
-- **Recruiters / partners** search the directory. Only subscribed recruiters see names and full CVs. Nobody sees member emails or phone numbers; all talent requests go through DSN.
+**Status:** test version. The website works end to end with sample data and one-click test access.
+The Supabase backend (database, access rules, sample data) is built and tested but not yet connected to the website.
 
-## The DSN Rating
-
-Five categories, 20 points each, 100 in total. Every new profile starts at **5 per category (25/100)** until a reviewer grades it.
-
-| Category | What it covers |
-|---|---|
-| Technical Expertise | Practical skill in the role, checked by questions or interview |
-| Projects & Quality of Work | Number, relevance and quality of projects |
-| Work Experience | Where the member has worked and in what role |
-| Education & Certifications | Schools, degrees, certifications, DSN programmes |
-| Professional & Soft Skills | Communication, reliability, client readiness |
-
-Rubric bands (0–5, 6–10, 11–15, 16–20) for each category are in `src/app.html` (`CATS`).
-
-Roles are separate from the rating. A role is **Claimed** until a reviewer verifies it at a level: Junior, Mid-Level, Senior or Lead / Expert.
-
-## Who sees what
-
-| | Public / free recruiter | Subscribed recruiter | Member (self) | Reviewer / Admin |
-|---|---|---|---|---|
-| DSN ID, roles, rating and breakdown | Yes | Yes | Yes | Yes |
-| Name | Masked (e.g. `T**** B*****`) | Yes | Yes | Yes |
-| Full CV and PDF download | No | Yes | Yes | Yes |
-| Email / phone | No | No | Own | Admin only |
-| Companies that viewed a profile | – | – | Premium members only | Admin |
-
-## Project layout
+## Repository layout
 
 ```
-index.html            Built single-file app (published as the live artifact)
-src/app.html          App source (HTML + CSS + JS, no framework)
-src/logo.png          DSN logo
-scripts/seed.py       Generates sample data -> scripts/seed.json
-scripts/build.py      Inlines the logo and sample data into index.html
-docs/                 Earlier PRD (v2), kept for reference
+DSN-TaaS/
+├── frontend/     The website (static HTML/CSS/JS). See frontend/README.md
+├── backend/      Supabase: database schema, access rules, sample data, email function. See backend/README.md
+├── docs/         Screen catalogue (PDF), architecture notes, earlier PRD
+├── tools/        build-artifact.py: bundles the site into one file for the Claude demo link
+├── .github/      CI workflow and pull request template
+├── vercel.json   Tells Vercel to serve frontend/
+├── CONTRIBUTING.md   Branches, commits, pull requests, releases, go-live checklist
+└── CHANGELOG.md
 ```
 
-Build: `python3 scripts/seed.py && python3 scripts/build.py`
+## Quick start
 
-## Data model (collections)
+```bash
+cd frontend && npm install && npm run dev     # http://localhost:5173
+```
 
-`members`, `applications`, `reviewers`, `recruiters`, `requests` (role verifications and rating reviews), `talentRequests` (partner requests), `views` (which recruiter opened which profile), `settings/main` (verification email, required documents, roles list, programmes).
+On the log-in page, use **Test access** to enter as Admin, Partner, Talent or Reviewer.
 
-Each member keeps an `impact` history (employment status at application, then every update) so DSN can measure programme impact over time. Admin → Impact compares status at application with status now and exports a CSV.
+## Deploy (Vercel)
 
-## Sample accounts (sample data only)
+Import the repo in Vercel with Framework Preset **Other** and no build command. `vercel.json` serves `frontend/`.
+Every push to `main` redeploys, and every pull request gets a preview link.
 
-Password for every sample account: `demo1234`
+## How the platform works
 
-- Members: `DSN-2024-0187` (Tunde), `DSN-2023-0412` (Adaeze, Premium)
-- Reviewers: `RV-001` (roles), `RV-002` (ratings), `RV-003` (both)
-- Recruiters: `RC-1001` (subscribed), `RC-1002` (free)
+- **Members** apply with their DSN ID and answer impact questions (employment status, programmes). DSN approves
+  the application and creates the profile. The member logs in with the DSN ID, creates a password and fills in one standard CV.
+- **DSN Rating:** five categories scored out of 20 (100 total): Technical Expertise, Projects & Quality of Work,
+  Work Experience, Education & Certifications, Professional & Soft Skills. Every profile starts at 5 per category.
+- **Roles** are separate from the rating. A member claims roles and can request verification for several at once.
+  A peer reviewer checks each against the role manual and sets the final role and level (Junior, Mid-Level, Senior, Lead / Expert),
+  can change or add roles, or ask for an interview.
+- **Partners** see the anonymised directory (DSN ID, masked name, roles, rating). Subscribers see names and full CVs,
+  download CVs and request specific members. Contact details are never shown.
+- **Admin** approves members and partners, manages reviewers, subscriptions, the role manual and settings, and tracks impact.
 
-Remove the sample records before launch.
-
-## Current hosting and what production needs
-
-The live version runs as a Claude artifact with a shared database. It is good for testing flows with the DSN team, but it is **not production-ready**:
-
-- Passwords are hashed in the browser and records are stored in a database any signed-in viewer of the artifact can technically read. Production needs a real backend (e.g. Supabase, Firebase or a Node/Postgres API) with server-side access control so contact details and password hashes are never sent to the browser.
-- No email is sent yet. Password reset checks the registered email instead of emailing a link; verification is done by members emailing documents to the address in Settings.
-- Subscription payments are handled offline by the DSN team (Admin → Recruiters → Activate subscription).
+See `docs/DSN_Talent_Platform_Screens.pdf` for every screen and what it is for.

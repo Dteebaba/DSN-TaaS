@@ -1,0 +1,18 @@
+# Supabase CLI project config (local development). See https://supabase.com/docs/guides/cli
+project_id = "dsn-talent-platform"
+
+[api]
+port = 54321
+schemas = ["public"]
+
+[db]
+port = 54322
+major_version = 16
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["https://*.vercel.app"]
+enable_signup = true
+
+[auth.email]
+enable_confirmations = true
